@@ -54,7 +54,7 @@ test('startingVertex() and endingVertex()', function() {
       expect(diag.startingVertex(1)).toEqual(-1);
       expect(diag.startingVertex(2)).toEqual(-1);
       expect(diag.startingVertex(3)).toEqual(0);
-      expect(diag.startingVertex(4)).Equal(0);
+      expect(diag.startingVertex(4)).toEqual(0);
       expect(diag.startingVertex(5)).toEqual(1);
       expect(diag.startingVertex(6)).toEqual(1);
       expect(diag.endingVertex(0)).toEqual(2);
