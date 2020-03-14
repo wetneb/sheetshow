@@ -7,7 +7,21 @@ let serializeSlice = function(slice) {
    return result;
 }
 
+
+/**
+ * A simple diagram in a monoidal category,
+ * described by a number of input wires, and
+ * a list of slices, each corresponding to
+ * a single generator with a given number of inputs
+ * and outputs, whiskered by 'offset' identities
+ * on the left.
+ */
 export default class PlanarDiagram {
+
+    /**
+     * When constructing an object, we compute the list of edges
+     * and which vertices they connect to.
+     */
     constructor(nbInputs, slices) {
         this.nbInputs = nbInputs;
         this.slices = slices;
@@ -58,6 +72,9 @@ export default class PlanarDiagram {
         }
     }
 
+    /**
+     * Deserializes a planar diagram from its JSON representation 
+     */
     static deserialize(jsonObj) {
        let d = new PlanarDiagram(jsonObj.inputs,
                 jsonObj.slices.map(
@@ -85,6 +102,9 @@ export default class PlanarDiagram {
        return labels;
     }
    
+    /**
+     * Serializes a planar diagram to JSON.
+     */
     serialize() {
         let baseObj = {
            inputs: this.nbInputs,
