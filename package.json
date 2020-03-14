@@ -1,7 +1,7 @@
 {
-  "name": "bimonoidal",
+  "name": "sheetshow",
   "version": "1.0.0",
-  "description": "Renderer for diagrams in bimonoidal categories",
+  "description": "Renderer for sheet diagrams in bimonoidal categories",
   "main": "index.js",
   "dependencies": {
     "bezier-js": "^2.4.0",
@@ -15,14 +15,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/wetneb/bimonoidal.git"
+    "url": "git+https://github.com/wetneb/sheetshow.git"
   },
   "author": "Antonin Delpeuch",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/wetneb/bimonoidal/issues"
+    "url": "https://github.com/wetneb/sheetshow/issues"
   },
-  "homepage": "https://github.com/wetneb/bimonoidal#readme",
+  "homepage": "https://github.com/wetneb/sheetshow#readme",
   "devDependencies": {
     "@babel/cli": "^7.8.4",
     "@babel/core": "^7.8.7",
