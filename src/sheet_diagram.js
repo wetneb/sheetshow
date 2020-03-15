@@ -59,7 +59,11 @@ export default class SheetDiagram extends PlanarDiagram {
                 // Add fake whiskering nodes
                 for(let k = 0; k < node.offset; k++) {
                    for(let m = 0; m < slice.inputs; m++) {
-                       this.pathToNode[currentEdges[slice.offset + m]][inputSheetCursors[m]].push(nextNodeId);
+                       let paths = this.pathToNode[currentEdges[slice.offset + m]];
+                       if (inputSheetCursors[m] >= paths.length) {
+                           throw new Error(`Not enough wires on input sheet ${m} at slice ${i}`);
+                       }
+                       paths[inputSheetCursors[m]].push(nextNodeId);
                        inputSheetCursors[m]++;
                    }
                    for(let m = 0; m < slice.outputs; m++) {
@@ -71,7 +75,11 @@ export default class SheetDiagram extends PlanarDiagram {
                 // Bind inputs paths to the current real node
                 for(let m = 0; m < slice.inputs; m++) {
                    for(let k = 0; k < node.inputs[m]; k++) {
-                      this.pathToNode[currentEdges[slice.offset + m]][inputSheetCursors[m]].push(nextNodeId);
+                      let paths = this.pathToNode[currentEdges[slice.offset + m]];
+                      if (inputSheetCursors[m] >= paths.length) {
+                          throw new Error(`Not enough wires on input sheet ${m} at slice ${i}`);
+                      }
+                      paths[inputSheetCursors[m]].push(nextNodeId);
                       inputSheetCursors[m]++;
                    }
                 }
@@ -90,7 +98,9 @@ export default class SheetDiagram extends PlanarDiagram {
              let nbWhiskeringNodes = -1;
              for(let m = 0; m < slice.inputs; m++) {
                 let paths = this.pathToNode[currentEdges[slice.offset + m]];
-                // TODO check that this assignment is the same for all sheets
+                if (m > 0 && nbWhiskeringNodes !== paths.length - inputSheetCursors[m]) {
+                   throw new Error(`Joining up sheets with inconsistent numbers of wires on them, at slice ${i}`);
+                }
                 nbWhiskeringNodes = paths.length - inputSheetCursors[m];
                 for(let k = inputSheetCursors[m]; k < paths.length; k++) {
                     paths[k].push(nextNodeId + k - inputSheetCursors[m]);

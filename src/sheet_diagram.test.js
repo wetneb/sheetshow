@@ -105,3 +105,49 @@ test('hadamard', function() {
     expect(diag.getPathsOnEdge(2)).toEqual([]);
     expect(diag.getPathsOnEdge(3)).toEqual([[0,0]]);
 });
+
+test('inconsistent numbers of edges on joined sheets', function() {
+    let slices = [{
+        offset: 0,
+        inputs: 2,
+        outputs: 0,
+        nodes: []
+    }];
+    expect(function() { new SheetDiagram([2,1], slices)})
+        .toThrow('Joining up sheets with inconsistent numbers of wires on them, at slice 0');
+});
+
+test('not enough edges on sheet, for node inputs', function() {
+    let slices = [{
+        offset: 0,
+        inputs: 1,
+        outputs: 1,
+        nodes: [
+           {
+              offset: 0,
+              inputs: [2],
+              outputs: [2],
+           }
+        ]
+    }];
+    expect(function() { new SheetDiagram([1], slices) })
+        .toThrow('Not enough wires on input sheet 0 at slice 0');
+});
+
+test('not enough edges on sheet, for offsets', function() {
+    let slices = [{
+        offset: 0,
+        inputs: 1,
+        outputs: 1,
+        nodes: [
+           {
+              offset: 4,
+              inputs: [0],
+              outputs: [0],
+           }
+        ]
+    }];
+    expect(function() { new SheetDiagram([1], slices) })
+        .toThrow('Not enough wires on input sheet 0 at slice 0');
+});
+
