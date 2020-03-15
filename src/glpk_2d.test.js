@@ -1,4 +1,4 @@
-import GlpkTwoDimensionalLayout from './glpk_layout.js' ;
+import GlpkTwoDimensionalLayout from './glpk_2d.js' ;
 import PlanarDiagram from './planar_diagram.js' ;
 
 test('constraints start with the prefix', function() {
