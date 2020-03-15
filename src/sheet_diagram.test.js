@@ -8,7 +8,7 @@ test('empty diagram', function() {
      expect(diag.serialize()).toEqual({inputs:[], slices:[]});
 });
 
-test('getVertex()', function() {
+test('simple diagram', function() {
       let slices = [{
                 offset:1,
                 inputs:1,
@@ -45,5 +45,63 @@ test('getVertex()', function() {
       expect(diag.getPathsOnEdge(6)).toEqual([[0,0]]);
 });
 
+test('tensor product', function() {
+      let slices = [{
+        offset: 0,
+        inputs: 4,
+        outputs: 4,
+        nodes: [
+          {
+             offset: 1,
+             inputs: [1,1,1,1],
+             outputs: [1,1,1,1]
+          },
+          {
+             offset: 0,
+             inputs: [1,1,1,1],
+             outputs: [1,1,1,1]
+          }
+        ]
+      }];
+     let diag = new SheetDiagram([4,4,4,4], slices);
+     expect(diag.getPathsOnEdge(0)).toEqual([[0,0],[1,1],[2,2],[3,3]]);
+     expect(diag.getPathsOnEdge(1)).toEqual([[0,0],[1,1],[2,2],[3,3]]);
+     expect(diag.getPathsOnEdge(2)).toEqual([[0,0],[1,1],[2,2],[3,3]]);
+     expect(diag.getPathsOnEdge(3)).toEqual([[0,0],[1,1],[2,2],[3,3]]);
+     expect(diag.getPathsOnEdge(4)).toEqual([[0,0],[1,1],[2,2],[3,3]]);
+     expect(diag.getPathsOnEdge(5)).toEqual([[0,0],[1,1],[2,2],[3,3]]);
+     expect(diag.getPathsOnEdge(6)).toEqual([[0,0],[1,1],[2,2],[3,3]]);
+     expect(diag.getPathsOnEdge(7)).toEqual([[0,0],[1,1],[2,2],[3,3]]);
+});
 
-
+test('hadamard', function() {
+     let slices = [{
+        offset: 0,
+        inputs: 1,
+        outputs: 2,
+        nodes: [
+           {
+              offset: 0,
+              inputs: [1],
+              outputs: [0,0]
+           }
+        ]
+     },
+     {
+        offset: 0,
+        inputs: 2,
+        outputs: 1,
+        nodes: [
+           {
+               offset: 0,
+               inputs: [0,0],
+               outputs: [1]
+           }
+       ]
+    }];
+    let diag = new SheetDiagram([1], slices);
+    expect(diag.getPathsOnEdge(0)).toEqual([[0,0]]);
+    expect(diag.getPathsOnEdge(1)).toEqual([]);
+    expect(diag.getPathsOnEdge(2)).toEqual([]);
+    expect(diag.getPathsOnEdge(3)).toEqual([[0,0]]);
+});
