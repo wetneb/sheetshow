@@ -122,7 +122,7 @@ export default class PlanarDiagram {
     }
 
     // the number of wires at a given height
-    nbWires(height) {
+    nbEdgesAtLevel(height) {
         return this.wiresAtLevel[height].length;
     }
 

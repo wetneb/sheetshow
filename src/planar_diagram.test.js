@@ -4,7 +4,7 @@ test('empty diagram', function() {
      let diag = new PlanarDiagram(0, []);
      expect(diag.nbVertices()).toEqual(0);
      expect(diag.nbEdges()).toEqual(0);
-     expect(diag.nbWires(0)).toEqual(0);
+     expect(diag.nbEdgesAtLevel(0)).toEqual(0);
      expect(diag.serialize()).toEqual({inputs:0, slices:[]});
 });
 
@@ -31,12 +31,12 @@ test('nbEdges() and nbVertices()', function() {
 });
 
 
-test('nbWires()', function() {
+test('nbEdgesAtLevel()', function() {
       let diag = new PlanarDiagram(3, [{offset:1, inputs:1, outputs:2},
                                        {offset:2, inputs:2, outputs:2}]);
-      expect(diag.nbWires(0)).toEqual(3);
-      expect(diag.nbWires(1)).toEqual(4);
-      expect(diag.nbWires(2)).toEqual(4);
+      expect(diag.nbEdgesAtLevel(0)).toEqual(3);
+      expect(diag.nbEdgesAtLevel(1)).toEqual(4);
+      expect(diag.nbEdgesAtLevel(2)).toEqual(4);
 });
 
 test('edgesAtLevel()', function() {

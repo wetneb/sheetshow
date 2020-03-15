@@ -51,7 +51,7 @@ export default class GlpkTwoDimensionalLayout {
       
 
       // Init the current edges
-      for(let i = 0; i < this.diag.nbWires(0); i++) {
+      for(let i = 0; i < this.diag.nbEdgesAtLevel(0); i++) {
         if (i === 0) {
             constraints.push({
                 name: prefix+'edge_r'+i,
