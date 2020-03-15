@@ -2,12 +2,30 @@
 
 import PlanarDiagram from './planar_diagram.js' ;
 
+/**
+ * A sheet diagram for a morphism in a bimonoidal category.
+ * It inherits from PlanarDiagram in the sense that it can be
+ * seen as a monoidal string diagram for the additive structure.
+ */
 export default class SheetDiagram extends PlanarDiagram {
 
+   /**
+    * Constructs a sheet diagram by proving:
+    * - a specification of input sheets, as a list of integers,
+    *   each integer representing the number of wires on the n-th
+    *   input sheet
+    * - a list of slices, each specifying how many input sheets and
+    *   output sheets it is connected to, with an offset, and a list
+    *   of nodes on the seam with their similar specification.
+    */
    constructor(inputSheets, slices) {
         super(inputSheets.length, slices);
         this.inputSheets = inputSheets;
         this.pathToNode = [];
+        // map from [vertex id, node it] to the list of [edge id, path id] linked to it from above
+        this.incomingPaths = new Map();
+        // map from [vertex id, node it] to the list of [edge id, path id] linked to it from below
+        this.outgoingPaths = new Map();
 
         let nextEdgeId = 0;
         let currentEdges = [];
@@ -64,9 +82,11 @@ export default class SheetDiagram extends PlanarDiagram {
                            throw new Error(`Not enough wires on input sheet ${m} at slice ${i}`);
                        }
                        paths[inputSheetCursors[m]].push(nextNodeId);
+                       this._addIncomingPath(i, nextNodeId, currentEdges[slice.offset + m], inputSheetCursors[m]);
                        inputSheetCursors[m]++;
                    }
                    for(let m = 0; m < slice.outputs; m++) {
+                       this._addOutgoingPath(i, nextNodeId, outputEdgeIds[m], this.pathToNode[outputEdgeIds[m]].length);
                        this.pathToNode[outputEdgeIds[m]].push([nextNodeId]);
                    }
                    nextNodeId++;
@@ -80,6 +100,7 @@ export default class SheetDiagram extends PlanarDiagram {
                           throw new Error(`Not enough wires on input sheet ${m} at slice ${i}`);
                       }
                       paths[inputSheetCursors[m]].push(nextNodeId);
+                      this._addIncomingPath(i, nextNodeId, currentEdges[slice.offset + m], inputSheetCursors[m]);
                       inputSheetCursors[m]++;
                    }
                 }
@@ -87,6 +108,7 @@ export default class SheetDiagram extends PlanarDiagram {
                 // Bind output paths to the current real node
                 for(let m = 0; m < slice.outputs; m++) {
                    for(let k = 0; k < node.outputs[m]; k++) {
+                      this._addOutgoingPath(i, nextNodeId, outputEdgeIds[m], this.pathToNode[outputEdgeIds[m]].length);
                       this.pathToNode[outputEdgeIds[m]].push([nextNodeId]);
                    }
                 }
@@ -103,12 +125,15 @@ export default class SheetDiagram extends PlanarDiagram {
                 }
                 nbWhiskeringNodes = paths.length - inputSheetCursors[m];
                 for(let k = inputSheetCursors[m]; k < paths.length; k++) {
-                    paths[k].push(nextNodeId + k - inputSheetCursors[m]);
+                    let nodeId = nextNodeId + k - inputSheetCursors[m];
+                    paths[k].push(nodeId);
+                    this._addIncomingPath(i, nodeId, currentEdges[slice.offset + m], k);
                 }
              }
              for(let m = 0; m < slice.outputs; m++) {
                 let paths = this.pathToNode[outputEdgeIds[m]];
                 for(let k = 0; k < nbWhiskeringNodes; k++) {
+                   this._addOutgoingPath(i, nextNodeId + k, outputEdgeIds[m], paths.length);
                    paths.push([nextNodeId + k]);
                 }
              }
@@ -141,5 +166,36 @@ export default class SheetDiagram extends PlanarDiagram {
           inputs: this.inputSheets,
           slices: this.slices
         };
+   }
+
+
+   getIncomingPaths(vertexId, nodeId) {
+        let current = this.incomingPaths.get(`${vertexId}_${nodeId}`);
+        return current === undefined ? [] : current;
+   }
+
+   getOutgoingPaths(vertexId, nodeId) {
+        let current = this.outgoingPaths.get(`${vertexId}_${nodeId}`);
+        return current === undefined ? [] : current;
+   }
+
+   _addIncomingPath(vertexId, nodeId, edgeId, pathId) {
+        let current = this.incomingPaths.get(`${vertexId}_${nodeId}`);
+        if (current === undefined) {
+            current = [[edgeId,pathId]];
+        } else {
+            current.push([edgeId, pathId]);
+        }
+        this.incomingPaths.set(`${vertexId}_${nodeId}`, current);
+   }
+
+   _addOutgoingPath(vertexId, nodeId, edgeId, pathId) {
+        let current = this.outgoingPaths.get(`${vertexId}_${nodeId}`);
+        if (current === undefined) {
+            current = [[edgeId,pathId]];
+        } else {
+            current.push([edgeId, pathId]);
+        }
+        this.outgoingPaths.set(`${vertexId}_${nodeId}`, current);
    }
 }

@@ -27,9 +27,9 @@ test('simple diagram', function() {
                  outputs:2,
                  nodes: [
                    {
-                        offset: 0,
-                        inputs: [2, 2],
-                        outputs: [1, 1]
+                      offset: 0,
+                      inputs: [2, 2],
+                      outputs: [1, 1]
                    }
                 ]
               }];
@@ -43,6 +43,14 @@ test('simple diagram', function() {
       expect(diag.getPathsOnEdge(4)).toEqual([[0,0],[1,0]]);
       expect(diag.getPathsOnEdge(5)).toEqual([[0,0]]);
       expect(diag.getPathsOnEdge(6)).toEqual([[0,0]]);
+        
+      expect(diag.getIncomingPaths(0, 0)).toEqual([[1,0]]);
+      expect(diag.getIncomingPaths(0, 1)).toEqual([[1,1]]);
+      expect(diag.getOutgoingPaths(0, 0)).toEqual([[3,0],[4,0]]);
+      expect(diag.getOutgoingPaths(0, 1)).toEqual([[3,1],[4,1]]);
+      
+      expect(diag.getIncomingPaths(1, 0)).toEqual([[4,0],[4,1],[2,0],[2,1]]);
+      expect(diag.getOutgoingPaths(1, 0)).toEqual([[5,0],[6,0]]);
 });
 
 test('tensor product', function() {
@@ -72,6 +80,15 @@ test('tensor product', function() {
      expect(diag.getPathsOnEdge(5)).toEqual([[0,0],[1,1],[2,2],[3,3]]);
      expect(diag.getPathsOnEdge(6)).toEqual([[0,0],[1,1],[2,2],[3,3]]);
      expect(diag.getPathsOnEdge(7)).toEqual([[0,0],[1,1],[2,2],[3,3]]);
+
+     expect(diag.getIncomingPaths(0, 0)).toEqual([[0,0],[1,0],[2,0],[3,0]]);
+     expect(diag.getIncomingPaths(0, 1)).toEqual([[0,1],[1,1],[2,1],[3,1]]);
+     expect(diag.getIncomingPaths(0, 2)).toEqual([[0,2],[1,2],[2,2],[3,2]]);
+     expect(diag.getIncomingPaths(0, 3)).toEqual([[0,3],[1,3],[2,3],[3,3]]);
+     expect(diag.getOutgoingPaths(0, 0)).toEqual([[4,0],[5,0],[6,0],[7,0]]);
+     expect(diag.getOutgoingPaths(0, 1)).toEqual([[4,1],[5,1],[6,1],[7,1]]);
+     expect(diag.getOutgoingPaths(0, 2)).toEqual([[4,2],[5,2],[6,2],[7,2]]);
+     expect(diag.getOutgoingPaths(0, 3)).toEqual([[4,3],[5,3],[6,3],[7,3]]);
 });
 
 test('hadamard', function() {
@@ -104,6 +121,11 @@ test('hadamard', function() {
     expect(diag.getPathsOnEdge(1)).toEqual([]);
     expect(diag.getPathsOnEdge(2)).toEqual([]);
     expect(diag.getPathsOnEdge(3)).toEqual([[0,0]]);
+
+    expect(diag.getIncomingPaths(0, 0)).toEqual([[0,0]]);
+    expect(diag.getOutgoingPaths(0, 0)).toEqual([]);
+    expect(diag.getIncomingPaths(1, 0)).toEqual([]);
+    expect(diag.getOutgoingPaths(1, 0)).toEqual([[3,0]]);
 });
 
 test('inconsistent numbers of edges on joined sheets', function() {
