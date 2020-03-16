@@ -30,3 +30,10 @@ test('simple diagram', function() {
       let layout = new SheetLayout(diag);
       layout.getModel();
 });
+
+test('discretizePath', function() {
+        expect(SheetLayout._discretizePath([{x:0, y:0},{x:1, y:1}], 10))
+                .toEqual([seen.P(0,0,0),seen.P(1,1,0)]);
+        expect(SheetLayout._discretizePath([{x:0, y:0},{x:1, y:1, cx1: 1, cy1: 0, cx2: 1, cy2:1}], 10).length)
+                .toEqual(11);
+});

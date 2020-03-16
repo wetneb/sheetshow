@@ -169,6 +169,9 @@ test('simple diagram', function() {
       });
 
       // Check that the program can be solved
-      let solutions = Glpk.solve(constraints);
-      expect(solutions.result.status).toEqual(5);
+      layout.compute();
+      expect(layout.getPathPosition(1, 0)).toBeCloseTo(25, 0);
+      expect(layout.getNodePosition(0, 0)).toBeCloseTo(margin, 0);
 });
+
+

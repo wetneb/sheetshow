@@ -35,9 +35,9 @@ function setUp() {
         let group = scene.model.append().scale(1);
         group.children = [model];
         let context = seen.Context('seen-canvas', scene);
-        let dragger = new seen.Drag(document.getElementById('seen-canvas'), {inertia : true})
+        let dragger = new seen.Drag(document.getElementById('seen-canvas'), {inertia : false})
         dragger.on('drag.rotate', function(e) {
-            let xform = seen.Quaternion.xyToTransform(e.offsetRelative.slice(0, e.offsetRelative.length));
+            let xform = seen.Quaternion.xyToTransform(e.offsetRelative[0], e.offsetRelative[1]);
             group.transform(xform);
             context.render();
         }

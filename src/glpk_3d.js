@@ -12,6 +12,27 @@ export default class GlpkBimonoidalLayout {
     }
 
     /**
+     * Solves the constraints with GLPK to deduce node and path positions.
+     */
+    compute() {
+        let program = this.getWireConstraints();
+        let solutions = Glpk.solve(program);
+        this.solutions = solutions.result.vars;
+    }
+
+    getNodePosition(vertexId, nodeId) {
+        return this.solutions[`node${vertexId}_${nodeId}`];
+    }
+
+    getPathPosition(edgeId, pathId) {
+        return this.solutions[`w${edgeId}_${pathId}`];
+    }
+
+    getSheetWidth() {
+        return this.solutions['rb'];
+    }
+
+    /**
      * Computes a GLPK program for the positions of wires
      * on sheets.
      */
