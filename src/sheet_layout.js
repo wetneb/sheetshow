@@ -15,7 +15,10 @@ export default class SheetLayout {
                 this.skeletonLayout.compute();
                 this.wiresLayout = new GlpkBimonoidalLayout(diagram);
                 this.wiresLayout.compute();
-                this.discretization = 10;
+                this.discretization = 20;
+                
+                this.sheetMaterial = new seen.Material(seen.Colors.hsl(0.6, 0.4, 0.4));
+                this.sheetMaterial.specularExponent = 5;
         }
 
         // Returns a model for the given edge
@@ -28,6 +31,12 @@ export default class SheetLayout {
                 let extruded = seen.Shapes.extrude(points, seen.P(0,0,this.wiresLayout.getSheetWidth()));
                 // remove the last quad as our paths are not cyclic
                 extruded.surfaces = extruded.surfaces.slice(0, extruded.surfaces.length-3);
+                for(let i = 0; i < extruded.surfaces.length; i++) {
+                        let surface = extruded.surfaces[i];
+                        surface.cullBackfaces = false;
+                        surface.fill(this.sheetMaterial);
+                        surface.stroke(this.sheetMaterial);
+                }
                 return extruded;
         }
 
@@ -38,7 +47,8 @@ export default class SheetLayout {
                         model = model.add(this.getSheetModel(i));
                 }
                 
-                model.scale(2);
+                model.translate(-this.skeletonLayout.width/2, -this.skeletonLayout.height/2,-this.wiresLayout.getSheetWidth()/2)
+                        .scale(2);
                 return model;
         }
 
