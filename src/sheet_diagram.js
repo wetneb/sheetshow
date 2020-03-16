@@ -26,6 +26,8 @@ export default class SheetDiagram extends PlanarDiagram {
         this.incomingPaths = new Map();
         // map from [vertex id, node it] to the list of [edge id, path id] linked to it from below
         this.outgoingPaths = new Map();
+        // number of nodes on a given vertex
+        this.nodesPerVertex = [];
 
         let nextEdgeId = 0;
         let currentEdges = [];
@@ -137,6 +139,7 @@ export default class SheetDiagram extends PlanarDiagram {
                    paths.push([nextNodeId + k]);
                 }
              }
+             this.nodesPerVertex.push(nextNodeId + nbWhiskeringNodes);
 
              for(let j = 0; j < slice.outputs; j++) {
                 newCurrentEdges.push(outputEdgeIds[j]);
@@ -168,6 +171,12 @@ export default class SheetDiagram extends PlanarDiagram {
         };
    }
 
+   /**
+    * The number of nodes on a vertex, including whiskering nodes.
+    */
+   nbNodesOnVertex(vertexId) {
+        return this.nodesPerVertex[vertexId];
+   }
 
    getIncomingPaths(vertexId, nodeId) {
         let current = this.incomingPaths.get(`${vertexId}_${nodeId}`);

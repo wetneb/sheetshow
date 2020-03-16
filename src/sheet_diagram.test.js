@@ -48,9 +48,11 @@ test('simple diagram', function() {
       expect(diag.getIncomingPaths(0, 1)).toEqual([[1,1]]);
       expect(diag.getOutgoingPaths(0, 0)).toEqual([[3,0],[4,0]]);
       expect(diag.getOutgoingPaths(0, 1)).toEqual([[3,1],[4,1]]);
-      
       expect(diag.getIncomingPaths(1, 0)).toEqual([[4,0],[4,1],[2,0],[2,1]]);
       expect(diag.getOutgoingPaths(1, 0)).toEqual([[5,0],[6,0]]);
+
+      expect(diag.nbNodesOnVertex(0)).toEqual(2);
+      expect(diag.nbNodesOnVertex(1)).toEqual(1);
 });
 
 test('tensor product', function() {
@@ -89,6 +91,8 @@ test('tensor product', function() {
      expect(diag.getOutgoingPaths(0, 1)).toEqual([[4,1],[5,1],[6,1],[7,1]]);
      expect(diag.getOutgoingPaths(0, 2)).toEqual([[4,2],[5,2],[6,2],[7,2]]);
      expect(diag.getOutgoingPaths(0, 3)).toEqual([[4,3],[5,3],[6,3],[7,3]]);
+
+     expect(diag.nbNodesOnVertex(0)).toEqual(4);
 });
 
 test('hadamard', function() {
@@ -126,6 +130,9 @@ test('hadamard', function() {
     expect(diag.getOutgoingPaths(0, 0)).toEqual([]);
     expect(diag.getIncomingPaths(1, 0)).toEqual([]);
     expect(diag.getOutgoingPaths(1, 0)).toEqual([[3,0]]);
+
+    expect(diag.nbNodesOnVertex(0)).toEqual(1);
+    expect(diag.nbNodesOnVertex(1)).toEqual(1);
 });
 
 test('inconsistent numbers of edges on joined sheets', function() {
