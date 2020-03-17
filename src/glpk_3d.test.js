@@ -30,8 +30,8 @@ test('simple diagram', function() {
               }];
       let diag = new SheetDiagram([ 1, 2, 2], slices);
 
-      let margin = 25.0;
-      let edgeDist = 10.0;
+      let margin = 15.0;
+      let edgeDist = 15.0;
       let avgEpsilon = 0.1;
       
       let layout = new GlpkBimonoidalLayout(diag);
@@ -170,7 +170,7 @@ test('simple diagram', function() {
 
       // Check that the program can be solved
       layout.compute();
-      expect(layout.getPathPosition(1, 0)).toBeCloseTo(25, 0);
+      expect(layout.getPathPosition(1, 0)).toBeCloseTo(margin, 0);
       expect(layout.getNodePosition(0, 0)).toBeCloseTo(margin, 0);
 });
 

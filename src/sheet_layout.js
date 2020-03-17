@@ -19,6 +19,8 @@ export default class SheetLayout {
                 
                 this.sheetMaterial = new seen.Material(seen.Colors.hsl(0.6, 0.4, 0.4));
                 this.sheetMaterial.specularExponent = 5;
+                this.sheetBoundaryMaterial = new seen.Material(seen.Colors.black());
+                this.sheetMaterial.shader = seen.Shaders.Flat;
         }
 
         // Returns a model for the given edge
@@ -26,9 +28,10 @@ export default class SheetLayout {
                 // build path
                 let edgeBezier = this.skeletonLayout.edges[edgeId]; 
                 let points = SheetLayout._discretizePath(edgeBezier, this.discretization);
+                let extrudeDirection = seen.P(0,0,this.wiresLayout.getSheetWidth());
 
                 // extrude
-                let extruded = seen.Shapes.extrude(points, seen.P(0,0,this.wiresLayout.getSheetWidth()));
+                let extruded = seen.Shapes.extrude(points, extrudeDirection);
                 // remove the last quad as our paths are not cyclic
                 extruded.surfaces = extruded.surfaces.slice(0, extruded.surfaces.length-3);
                 for(let i = 0; i < extruded.surfaces.length; i++) {
@@ -37,7 +40,76 @@ export default class SheetLayout {
                         surface.fill(this.sheetMaterial);
                         surface.stroke(this.sheetMaterial);
                 }
+
+                // build outer path
+                let translatedPoints = points.map(p => p.copy().translate(0, 0, -extrudeDirection.z));
+                let topEdge = [points[0], translatedPoints[0]];
+                let botEdge = [points[points.length-1], translatedPoints[points.length-1]];
+                let wireSurfaces = [points, translatedPoints, topEdge, botEdge].map(l => this._makeWireSurface(l));
+                extruded.surfaces = wireSurfaces; // .concat(extruded.surfaces);
+
+                // Add paths on the sheet
+                let paths = this.diagram.getPathsOnEdge(edgeId);
+                let pathSurfaces = [];
+                for(let i = 0; i < paths.length; i++) {
+                        let pathPosition = this.wiresLayout.getPathPosition(edgeId, i);
+                        let startingVertex = this.diagram.startingVertex(edgeId);
+                        let endingVertex = this.diagram.endingVertex(edgeId);
+                        let startPos = pathPosition;
+                        if (startingVertex !== -1) {
+                                startPos = this.wiresLayout.getNodePosition(startingVertex, paths[i][0]);
+                        }
+                        let endPos = this.wiresLayout.getNodePosition(endingVertex, paths[i][1]);
+                        if (endingVertex !== -1) {
+                                endPos = this.wiresLayout.getNodePosition(endingVertex, paths[i][1]);
+                        }
+                        let bentBezier = SheetLayout._bendBezier(edgeBezier, startPos, pathPosition, endPos);
+                        let curve = SheetLayout._discretizePath(bentBezier, this.discretization);
+                        pathSurfaces.push(this._makeWireSurface(curve));
+                }
+                extruded.surfaces = pathSurfaces.concat(extruded.surfaces);
+                
                 return extruded;
+        }
+
+        /**
+         * Given the base curve for a sheet, the positions of the vertices a path
+         * is connecting to, and the nominal position of the path on the sheet,
+         * return a 3D curve drawn on the sheet with the required starting
+         * and end positions.
+         */
+        static _bendBezier(sheetCurve, startingZ, midZ, endZ) {
+                let z = [startingZ, midZ, endZ];
+                let zCursor = 0;
+                let result = [];
+                for (let i = 0; i < sheetCurve.length; i++) {
+                        let point = sheetCurve[i];
+                        let bent = Object.assign({}, point);
+                        if (point.cx1 === undefined) {
+                                bent.z = z[zCursor];
+                                if (i > 0) {
+                                        zCursor = 1;
+                                }
+                        } else {
+                                // This one has Bezier controls, so go to next z position
+                                let previousZ = z[zCursor];
+                                zCursor++;
+                                let currentZ = z[zCursor];
+                                bent.z = currentZ;
+                                bent.cz1 = previousZ;
+                                bent.cz2 = currentZ;
+                        }
+                        result.push(bent);
+                }
+                return result;
+        }
+
+        _makeWireSurface(path) {
+                let surface = new seen.Surface(path);
+                surface.fillMaterial = null;
+                surface.stroke(this.sheetBoundaryMaterial);
+                surface.cullBackfaces = false;
+                return surface;
         }
 
         getModel() {
@@ -61,25 +133,25 @@ export default class SheetLayout {
                         return [];
                 }
                 let lastPoint = pathCoords[0];
-                let result = [seen.P(lastPoint.x, lastPoint.y, 0)];
+                let result = [seen.P(lastPoint.x, lastPoint.y, lastPoint.z || 0)];
                 for(let i = 1; i < pathCoords.length; i++) {
                         let point = pathCoords[i];
                         if (point.cx1 === undefined) {
                                 // This is just a regular point, so a straight line since the last point
-                                result.push(seen.P(point.x, point.y, 0));
+                                result.push(seen.P(point.x, point.y, point.z || 0));
                         } else {
                                 // This is a Bezier curve
                                 let curve = new Bezier([
-                                        lastPoint,
-                                        {x:point.cx1, y:point.cy1},
-                                        {x:point.cx2, y:point.cy2},
-                                        {x:point.x, y:point.y}]);
+                                        {x:lastPoint.x, y:lastPoint.y, z:lastPoint.z || 0},
+                                        {x:point.cx1, y:point.cy1, z:point.cz1 || 0},
+                                        {x:point.cx2, y:point.cy2, z:point.cz2 || 0},
+                                        {x:point.x, y:point.y, z:point.z || 0}]);
                                 let lut = curve.getLUT(steps+1);
                                 for (let j = 1; j < lut.length; j++) {
-                                    result.push(seen.P(lut[j].x, lut[j].y, 0)); 
+                                    result.push(seen.P(lut[j].x, lut[j].y, lut[j].z || 0)); 
                                 }
                         }                        
-                        lastPoint = {x:point.x, y:point.y};
+                        lastPoint = {x:point.x, y:point.y, z:point.z};
                 }
 
                 return result;

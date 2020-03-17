@@ -5,8 +5,8 @@ import Glpk from 'glpk.js';
 export default class GlpkBimonoidalLayout {
     constructor(diagram) {
         this.diag = diagram;
-        this.edgeDist = 10.0; 
-        this.margins = 25.0;
+        this.edgeDist = 15.0; 
+        this.margins = 15.0;
         this.avgEpsilon = 0.1;
 
     }
