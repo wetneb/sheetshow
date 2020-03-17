@@ -21,6 +21,8 @@ export default class SheetLayout {
                 this.sheetMaterial.specularExponent = 5;
                 this.sheetBoundaryMaterial = new seen.Material(seen.Colors.black());
                 this.sheetMaterial.shader = seen.Shaders.Flat;
+                this.pathMaterial = new seen.Material(seen.Colors.hsl(0, 1, 0.5));
+                this.pathMaterial.shader = seen.Shaders.Flat;
         }
 
         // Returns a model for the given edge
@@ -65,7 +67,9 @@ export default class SheetLayout {
                         }
                         let bentBezier = SheetLayout._bendBezier(edgeBezier, startPos, pathPosition, endPos);
                         let curve = SheetLayout._discretizePath(bentBezier, this.discretization);
-                        pathSurfaces.push(this._makeWireSurface(curve));
+                        let surface = this._makeWireSurface(curve)
+                        surface.stroke(this.pathMaterial);
+                        pathSurfaces.push(surface);
                 }
                 extruded.surfaces = pathSurfaces.concat(extruded.surfaces);
                 
@@ -97,7 +101,7 @@ export default class SheetLayout {
                                 let currentZ = z[zCursor];
                                 bent.z = currentZ;
                                 bent.cz1 = previousZ;
-                                bent.cz2 = currentZ;
+                                bent.cz2 = previousZ;
                         }
                         result.push(bent);
                 }
