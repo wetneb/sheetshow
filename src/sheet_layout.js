@@ -27,6 +27,8 @@ export default class SheetLayout {
 
         // Returns a model for the given edge
         getSheetModel(edgeId) {
+                let model = seen.Models.default();
+
                 // build path
                 let edgeBezier = this.skeletonLayout.edges[edgeId]; 
                 let points = SheetLayout._discretizePath(edgeBezier, this.discretization);
@@ -72,8 +74,9 @@ export default class SheetLayout {
                         pathSurfaces.push(surface);
                 }
                 extruded.surfaces = pathSurfaces.concat(extruded.surfaces);
-                
-                return extruded;
+               
+                model.add(extruded);
+                return model;
         }
 
         /**
@@ -119,9 +122,25 @@ export default class SheetLayout {
         getModel() {
                 let model = seen.Models.default();
                 
+                // add models for sheets
                 for(let i = 0; i < this.diagram.nbEdges(); i++) {
                         model = model.add(this.getSheetModel(i));
                 }
+
+                // add nodes
+                for(let i = 0; i < this.diagram.nbVertices(); i++) {
+                        for(let j = 0; j < this.diagram.nbNodesOnVertex(i); j++) {
+                                let nodeMetadata = this.diagram.getNode(i, j);
+                                if (nodeMetadata !== undefined) {
+                                       let sphere = seen.Shapes.sphere(1);
+                                       let vertex2d = this.skeletonLayout.vertices[i];
+                                       sphere.scale(3).translate(vertex2d.x, vertex2d.y, this.wiresLayout.getNodePosition(i, j));
+                                       sphere.fill(this.pathMaterial);
+                                       model = model.add(sphere); 
+                                }
+                        }
+                }
+ 
                 
                 model.translate(-this.skeletonLayout.width/2, -this.skeletonLayout.height/2,-this.wiresLayout.getSheetWidth()/2)
                         .scale(2);

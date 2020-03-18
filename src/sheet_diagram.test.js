@@ -53,6 +53,10 @@ test('simple diagram', function() {
 
       expect(diag.nbNodesOnVertex(0)).toEqual(2);
       expect(diag.nbNodesOnVertex(1)).toEqual(1);
+
+      expect(diag.getNode(0,0)).toEqual({ offset: 0, inputs: [1], outputs: [1,1] });
+      expect(diag.getNode(0,1)).toEqual(undefined);
+      expect(diag.getNode(1,0)).toEqual({ offset: 0, inputs: [2,2], outputs: [1,1] });
 });
 
 test('tensor product', function() {

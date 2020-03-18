@@ -47,5 +47,5 @@ test('bendBezier', function() {
                 .toEqual([{x: 1, y: 2, z: 5}, {x: 3, y: 4, z: 5}]);
         
         expect(SheetLayout._bendBezier([{x: 1, y:2},{x: 3, y:4, cx1:8, cx2:8, cy1:9, cy2: 9}], 5, 6, 7))
-                .toEqual([{x: 1, y: 2, z: 5}, {x: 3, y: 4, cx1: 8, cx2: 8, cy1: 9, cy2: 9, cz1: 5, cz2: 5, z: 6}]);
+                .toEqual([{x: 1, y: 2, z: 5}, {x: 3, y: 4, cx1: 8, cx2: 8, cy1: 9, cy2: 9, cz1: 6, cz2: 6, z: 6}]);
 });

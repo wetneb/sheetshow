@@ -28,6 +28,8 @@ export default class SheetDiagram extends PlanarDiagram {
         this.outgoingPaths = new Map();
         // number of nodes on a given vertex
         this.nodesPerVertex = [];
+        // map from [vertex id, node id] to node metadata
+        this.nodeMetadata = new Map();
 
         let nextEdgeId = 0;
         let currentEdges = [];
@@ -115,6 +117,7 @@ export default class SheetDiagram extends PlanarDiagram {
                    }
                 }
 
+                this.nodeMetadata.set(`${i}_${nextNodeId}`, node);
                 nextNodeId++;
              }
 
@@ -186,6 +189,13 @@ export default class SheetDiagram extends PlanarDiagram {
    getOutgoingPaths(vertexId, nodeId) {
         let current = this.outgoingPaths.get(`${vertexId}_${nodeId}`);
         return current === undefined ? [] : current;
+   }
+   
+   /**
+    * The node metadata obtained from the original definition of the diagram
+    */
+   getNode(vertexId, nodeId) {
+        return this.nodeMetadata.get(`${vertexId}_${nodeId}`);
    }
 
    _addIncomingPath(vertexId, nodeId, edgeId, pathId) {
