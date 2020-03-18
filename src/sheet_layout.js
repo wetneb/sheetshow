@@ -100,8 +100,8 @@ export default class SheetLayout {
                                 zCursor++;
                                 let currentZ = z[zCursor];
                                 bent.z = currentZ;
-                                bent.cz1 = previousZ;
-                                bent.cz2 = previousZ;
+                                bent.cz1 = midZ;
+                                bent.cz2 = midZ;
                         }
                         result.push(bent);
                 }
