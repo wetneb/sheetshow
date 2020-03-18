@@ -3,6 +3,7 @@ import SheetLayout from './sheet_layout.js';
 import seen from './seen.js';
 
 function setUp() {
+/*
        let slices = [{
                 offset:1,
                 inputs:1,
@@ -27,7 +28,51 @@ function setUp() {
                    }
                 ]
               }];
-        let diag = new SheetDiagram([ 1, 2, 2], slices);
+        let diag = new SheetDiagram([ 1, 2, 2], slices); */
+        let slices = [{
+                offset:0,
+                inputs:1,
+                outputs:2,
+                nodes: [
+                   {
+                      offset: 0,
+                      inputs: [1],
+                      outputs: [1,1]
+                   }
+                ]
+              },
+              {
+                 offset:0,
+                 inputs:1,
+                 outputs:1,
+                 nodes: [
+                   {
+                      offset: 0,
+                      inputs: [1],
+                      outputs: [2]
+                   }
+                ]
+              },
+              {
+                  offset: 0,
+                  inputs: 1,
+                  outputs: 1,
+                  nodes: [
+                    {
+                        offset: 0,
+                        inputs: [1],
+                        outputs: [0]
+                    }]
+              },
+              {
+                   offset: 0,
+                   inputs: 2,
+                   outputs: 1,
+                   nodes: []
+              }
+        ];
+      let diag = new SheetDiagram([ 1], slices);
+
         let layout = new SheetLayout(diag);
         let model = layout.getModel(); 
         let viewport = seen.Viewports.center(400, 400);

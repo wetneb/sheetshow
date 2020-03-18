@@ -15,8 +15,13 @@ export default class GlpkBimonoidalLayout {
      * Solves the constraints with GLPK to deduce node and path positions.
      */
     compute() {
-        let program = this.getWireConstraints();
+        let program = this.getWireConstraints(true);
         let solutions = Glpk.solve(program);
+        if (solutions.result.status === 1) {
+            // switch to lax mode if the strict set of constraints is unsatisfiable
+            program = this.getWireConstraints(false);
+            solutions = Glpk.solve(program);
+        }
         this.solutions = solutions.result.vars;
     }
 
@@ -35,8 +40,11 @@ export default class GlpkBimonoidalLayout {
     /**
      * Computes a GLPK program for the positions of wires
      * on sheets.
+     * The boolean strict parameter determines whether we should 
+     * produce a stricter set of constraints, which can fail on some
+     * diagrams but produce a better output in most diagrams.
      */
-    getWireConstraints() {
+    getWireConstraints(strictMode) {
        // weighted list of all variables appearing in the program.
        // we minimize their sum as objective.
        let allVars = [
@@ -95,39 +103,38 @@ export default class GlpkBimonoidalLayout {
             // For each node on that seam
             for(let j = 0; j < this.diag.nbNodesOnVertex(i); j++) {
                 let varName = `node${i}_${j}`;
+                allVars.push({
+                        name: varName,
+                        coef: 1.0
+                });
                 
-                // Vertex is centered around the mean of its inputs
-                let inputVars = [{name: varName, coef: -1.0}];
                 let incomingPaths = this.diag.getIncomingPaths(i, j);
-                for(let k = 0; k < incomingPaths.length; k++) {
-                    inputVars.push({
-                        name: `w${incomingPaths[k][0]}_${incomingPaths[k][1]}`,
-                        coef: 1.0 / incomingPaths.length
-                    });
-                }
-                if (incomingPaths.length > 0) {
-                    constraints.push({
-                        name: varName + '_inputs',
-                        vars: inputVars,
-                        bnds: { type: Glpk.GLP_DB, ub: this.avgEpsilon, lb: -this.avgEpsilon },
-                    });
+                if (strictMode) {
+                    // For each sheet, node is centered around the mean of the input wires on that sheet
+                    let sheetsAbove = this.diag.edgesAtLevel(i);
+                    let vertex = this.diag.getVertex(i);
+                    for(let k = vertex.offset; k < vertex.offset + vertex.inputs; k++) {
+                        let paths = incomingPaths.filter(t => t[0] == sheetsAbove[k]);
+                        this.centerAround(constraints, varName, paths, varName + `_inputs_${k}`);
+                    } 
+                } else {
+                    // Node is centered around the mean of all its inputs
+                    this.centerAround(constraints, varName, incomingPaths, varName + '_inputs');
                 }
 
                 // Vertex is centered around the mean of its outputs
-                let outputVars = [{name: varName, coef: -1.0}];
                 let outgoingPaths = this.diag.getOutgoingPaths(i, j);
-                for(let k = 0; k < outgoingPaths.length; k++) {
-                    outputVars.push({
-                        name: `w${outgoingPaths[k][0]}_${outgoingPaths[k][1]}`,
-                        coef: 1.0 / outgoingPaths.length
-                    });
-                }
-                if (outgoingPaths.length > 0) {
-                    constraints.push({
-                        name: varName + '_outputs',
-                        vars: outputVars,
-                        bnds: { type: Glpk.GLP_DB, ub: this.avgEpsilon, lb: -this.avgEpsilon }
-                    });
+                if (strictMode) {
+                    // For each sheet, node is centered around the mean of the output wires on that sheet
+                    let sheetsBelow = this.diag.edgesAtLevel(i+1);
+                    let vertex = this.diag.getVertex(i);
+                    for(let k = vertex.offset; k < vertex.offset + vertex.outputs; k++) {
+                        let paths = outgoingPaths.filter(t => t[0] == sheetsBelow[k]);
+                        this.centerAround(constraints, varName, paths, varName + `_outputs_${k}`);
+                    } 
+                } else {
+                    // Node is centered around the mean of all its outputs
+                    this.centerAround(constraints, varName, outgoingPaths, varName + '_outputs');
                 }
             }
         }
@@ -142,5 +149,22 @@ export default class GlpkBimonoidalLayout {
            subjectTo: constraints
         };
         return program;
+    }
+
+    centerAround(constraints, vertexVar, wireVars, constraintName) {
+        let inputVars = [{name: vertexVar, coef: -1.0}];
+        for(let k = 0; k < wireVars.length; k++) {
+            inputVars.push({
+                name: `w${wireVars[k][0]}_${wireVars[k][1]}`,
+                coef: 1.0 / wireVars.length
+            });
+        }
+        if (wireVars.length > 0) {
+            constraints.push({
+                name: constraintName,
+                vars: inputVars,
+                bnds: { type: Glpk.GLP_DB, ub: this.avgEpsilon, lb: -this.avgEpsilon },
+            });
+        }
     }
 }

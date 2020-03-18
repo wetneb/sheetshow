@@ -35,7 +35,7 @@ test('simple diagram', function() {
       let avgEpsilon = 0.1;
       
       let layout = new GlpkBimonoidalLayout(diag);
-      let constraints = layout.getWireConstraints();
+      let constraints = layout.getWireConstraints(false);
       expect(constraints).toEqual({
         name: 'LP',
         objective: {
@@ -174,4 +174,59 @@ test('simple diagram', function() {
       expect(layout.getNodePosition(0, 0)).toBeCloseTo(margin, 0);
 });
 
+test('fall back to non-strict mode', function() {
+       let slices = [{
+                offset:0,
+                inputs:1,
+                outputs:2,
+                nodes: [
+                   {
+                      offset: 0,
+                      inputs: [1],
+                      outputs: [1,1]
+                   }
+                ]
+              },
+              {
+                 offset:0,
+                 inputs:1,
+                 outputs:1,
+                 nodes: [
+                   {
+                      offset: 0,
+                      inputs: [1],
+                      outputs: [2]
+                   }
+                ]
+              },
+              {
+                  offset: 0,
+                  inputs: 1,
+                  outputs: 1,
+                  nodes: [
+                    {
+                        offset: 0,
+                        inputs: [1],
+                        outputs: [0]
+                    }]
+              },
+              {
+                   offset: 0,
+                   inputs: 2,
+                   outputs: 1,
+                   nodes: []
+              }
+        ];
+      let diag = new SheetDiagram([ 1], slices);
+      let layout = new GlpkBimonoidalLayout(diag);
 
+      let avgEpsilon = 0.1;
+
+      let constraints = layout.getWireConstraints(true);
+      let solutions = Glpk.solve(constraints);
+      // program cannot be solved
+      expect(solutions.result.status).toEqual(1);
+      constraints = layout.getWireConstraints(false);
+      solutions = Glpk.solve(constraints);
+      expect(solutions.result.status).toEqual(5);
+});
