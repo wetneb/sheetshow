@@ -27,6 +27,12 @@
                             <div style="border: 1px solid #e7e7e7; border-radius: 4px; text-align: center;">
                                 <svg width="400" height="400" id="seen-canvas"></svg>
                             </div>
+                            <div>
+                                <p id="parsing-error" style="color: red"></p>
+                            </div>
+                            <div class="btn-group" role="group" aria-label="Diagram actions">
+                                <a class="btn btn-default" id="svg-export" href="#" download="sheet_diagram.svg">Save as SVG</a>
+                            </div>
                         </div>
                         <div class="col-md-6">
                             <textarea id="json-textarea" class="form-control" rows="50" spellcheck="false"></textarea>

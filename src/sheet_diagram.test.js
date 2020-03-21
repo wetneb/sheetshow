@@ -184,3 +184,17 @@ test('not enough edges on sheet, for offsets', function() {
         .toThrow('Not enough wires on input sheet 0 at slice 0');
 });
 
+test('not enough input sheets', function() {
+   let diagram = {
+    inputs: [ 1 ],
+    slices: [
+        {
+            offset: 1,
+            inputs: 1,
+            outputs: 2,
+        }
+      ]
+   };
+   expect(function() { SheetDiagram.deserialize(diagram) })
+        .toThrow('Not enough input wires at slice 0');
+});

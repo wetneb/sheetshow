@@ -38,6 +38,10 @@ export default class PlanarDiagram {
         let nextEdgeIdx = nbInputs;
         for(let i = 0; i < slices.length; i++) {
             let slice = slices[i];
+
+            if (slice.offset + slice.inputs > currentEdges.length) {
+                throw new Error(`Not enough input wires at slice ${i}`);
+            }
         
             let newCurrentEdges = [];
             // Extend wires before offset

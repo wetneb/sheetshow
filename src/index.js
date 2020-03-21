@@ -1,33 +1,97 @@
 import SheetDiagram from './sheet_diagram.js';
 import SheetLayout from './sheet_layout.js';
+import { Base64 } from 'js-base64';
 import seen from './seen.js';
 
+/** SVG export **/
+
+var updateSVGLinkTimeout = null;
+
+function updateSVGLink() {
+        let svgText = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>'+document.getElementById('seen-canvas').outerHTML;
+        document.getElementById('svg-export').setAttribute('href', 'data:image/svg+xml;charset=utf-16;base64,'+Base64.encode(svgText));
+}
+
+function scheduleSVGLinkUpdate() {
+        if (updateSVGLinkTimeout !== null) {
+                clearTimeout(updateSVGLinkTimeout);
+                updateSVGLinkTimeout = 0;
+        }
+        updateSVGLinkTimeout = setTimeout(updateSVGLink, 500);
+}
+
+/** Rendering of JSON changes **/
+
+function onJSONChange(evt) {
+        let errorP = document.getElementById('parsing-error');
+        let jsonTextarea = document.getElementById('json-textarea');
+        let json = jsonTextarea.value;
+        try {
+                let parsed = JSON.parse(json);
+                let diag = SheetDiagram.deserialize(parsed);
+                updateTextarea(diag);
+                renderDiagram(diag);
+                errorP.innerHTML = '';
+        } catch(e) {
+                errorP.innerHTML = e.message;
+        }
+}
 
 function updateTextarea(diagram) {
         let text = JSON.stringify(diagram.serialize(), null, 4);
-        document.getElementById('json-textarea').value = text;
+        let replacer = function(match, d1, d2) {
+            return ''+d1+' '+d2
+        };
+        let prettyPrint = function(json) {
+            let currentStr = json.replace(/(\[|\d,)\n *(\d)/, replacer).replace(/(\d)\n *(\])/, replacer);
+            if (currentStr !== json) {
+                return prettyPrint(currentStr);
+            } else {
+                return currentStr;
+            }
+        }
+        document.getElementById('json-textarea').value = prettyPrint(text);
 }
+
+
+var modelGroup = null;
+var seenContext = null;
+
+function renderDiagram(diag) {
+        let layout = new SheetLayout(diag);
+        let model = layout.getModel(); 
+        modelGroup.children = [model];
+        modelGroup.dirty = true;
+        seenContext.render();
+        scheduleSVGLinkUpdate();
+}
+
+/** Wiring things up **/
 
 export function setUp(initialDiagram) {
 
         let diag = SheetDiagram.deserialize(initialDiagram);
         updateTextarea(diag);
 
-        let layout = new SheetLayout(diag);
-        let model = layout.getModel(); 
         let viewport = seen.Viewports.center(400, 400);
         let scene = new seen.Scene({model: seen.Models.default(), viewport: viewport});
-        let group = scene.model.append().scale(1);
-        group.children = [model];
-        let context = seen.Context('seen-canvas', scene);
+        modelGroup = scene.model.append().scale(1);
+        seenContext = seen.Context('seen-canvas', scene);
         let dragger = new seen.Drag(document.getElementById('seen-canvas'), {inertia : false})
         dragger.on('drag.rotate', function(e) {
             let xform = seen.Quaternion.xyToTransform(e.offsetRelative[0], e.offsetRelative[1]);
-            group.transform(xform);
-            context.render();
+            modelGroup.transform(xform);
+            seenContext.render();
+            scheduleSVGLinkUpdate();
         }
         );
-        context.render();
+
+        renderDiagram(diag);
+
+        let jsonTextarea = document.getElementById('json-textarea');
+        jsonTextarea.onchange = onJSONChange;
+        let exportSVGButton = document.getElementById('svg-export');
+        // exportSVGButton.onclick = exportSVG;
 }
 
 
