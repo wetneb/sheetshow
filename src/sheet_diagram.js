@@ -174,6 +174,10 @@ export default class SheetDiagram extends PlanarDiagram {
         };
    }
 
+   static deserialize(jsonObject) {
+        return new SheetDiagram(jsonObject.inputs, jsonObject.slices);
+   }
+
    /**
     * The number of nodes on a vertex, including whiskering nodes.
     */
