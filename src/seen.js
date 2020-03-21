@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 /** seen.js v0.2.5 | themadcreator.github.io/seen | (c) Bill Dwyer | @license: Apache 2.0 */
 
 (function(){
