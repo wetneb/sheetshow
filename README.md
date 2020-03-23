@@ -5,3 +5,4 @@ SheetShow
 
 A renderer for sheet diagrams in bimonoidal categories.
 
+![Sample sheet diagram](https://sheetshow.readthedocs.io/en/latest/_images/sheet_diagram.svg)
