@@ -22,6 +22,8 @@ function scheduleSVGLinkUpdate() {
 
 /** Rendering of JSON changes **/
 
+var currentDiagram = null;
+
 function onJSONChange(evt) {
         let errorP = document.getElementById('parsing-error');
         let jsonTextarea = document.getElementById('json-textarea');
@@ -63,14 +65,25 @@ function renderDiagram(diag) {
         modelGroup.children = [model];
         modelGroup.dirty = true;
         seenContext.render();
+        currentDiagram = diag;
         scheduleSVGLinkUpdate();
 }
 
 /** Wiring things up **/
 
 export function setUp(initialDiagram) {
-
         let diag = SheetDiagram.deserialize(initialDiagram);
+        // check if we have a diagram in the hash, in which case it replaces the inital one
+        if (window.location.hash != null && window.location.hash.length > 0) {
+            try {
+                let jsonString = Base64.decode(window.location.hash);
+                diag = SheetDiagram.deserialize(JSON.parse(jsonString));
+            } catch(e) {
+                ;
+            }
+        }
+            
+
         updateTextarea(diag);
 
         let viewport = seen.Viewports.center(400, 400);
@@ -92,53 +105,17 @@ export function setUp(initialDiagram) {
 
         let jsonTextarea = document.getElementById('json-textarea');
         jsonTextarea.onchange = onJSONChange;
-        let exportSVGButton = document.getElementById('svg-export');
+        let shareURLButton = document.getElementById('share-url');
+        shareURLButton.onclick = showShareURL;
 }
 
 
-/*
-        let slices = [{
-                offset:0,
-                inputs:1,
-                outputs:2,
-                nodes: [
-                   {
-                      offset: 0,
-                      inputs: [1],
-                      outputs: [1,1]
-                   }
-                ]
-              },
-              {
-                 offset:0,
-                 inputs:1,
-                 outputs:1,
-                 nodes: [
-                   {
-                      offset: 0,
-                      inputs: [1],
-                      outputs: [2]
-                   }
-                ]
-              },
-              {
-                  offset: 0,
-                  inputs: 1,
-                  outputs: 1,
-                  nodes: [
-                    {
-                        offset: 0,
-                        inputs: [1],
-                        outputs: [0]
-                    }]
-              },
-              {
-                   offset: 0,
-                   inputs: 2,
-                   outputs: 1,
-                   nodes: []
-              }
-        ];
-      let diag = new SheetDiagram([ 1], slices);
-*/
+/** Share URL button **/
+
+function showShareURL(e) {
+        let diagramJSON = Base64.encode(JSON.stringify(currentDiagram.serialize()));
+        window.location.hash = '#'+diagramJSON;
+        e.preventDefault();
+}
+
 
