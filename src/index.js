@@ -74,7 +74,7 @@ export function setUp(initialDiagram) {
         updateTextarea(diag);
 
         let viewport = seen.Viewports.center(400, 400);
-        let scene = new seen.Scene({model: seen.Models.default(), viewport: viewport});
+        let scene = new seen.Scene({model: seen.Models.default(), viewport: viewport, fractionalPoints: true});
         modelGroup = scene.model.append().scale(1);
         seenContext = seen.Context('seen-canvas', scene);
         let dragger = new seen.Drag(document.getElementById('seen-canvas'), {inertia : false})
@@ -91,7 +91,6 @@ export function setUp(initialDiagram) {
         let jsonTextarea = document.getElementById('json-textarea');
         jsonTextarea.onchange = onJSONChange;
         let exportSVGButton = document.getElementById('svg-export');
-        // exportSVGButton.onclick = exportSVG;
 }
 
 

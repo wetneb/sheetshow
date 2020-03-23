@@ -28,7 +28,7 @@ One can therefore encode the diagram as follows:
 
  + The number of wires passing to the left of the node in the slice. We call this the *offset*;
  + The number of input wires consumed by the node;
- + The number of output wires consumed by the node (or again, their list of types).
+ + The number of output wires produced by the node (or again, their list of types).
 
 Therefore, one can encode the sample diagram above as follows, assuming that inputs are at the top::
 
