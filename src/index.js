@@ -77,7 +77,9 @@ export function setUp(initialDiagram) {
         let scene = new seen.Scene({model: seen.Models.default(), viewport: viewport, fractionalPoints: true});
         modelGroup = scene.model.append().scale(1);
         seenContext = seen.Context('seen-canvas', scene);
-        let dragger = new seen.Drag(document.getElementById('seen-canvas'), {inertia : false})
+        let canvasElem = document.getElementById('seen-canvas');
+        canvasElem.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+        let dragger = new seen.Drag(canvasElem, {inertia : false})
         dragger.on('drag.rotate', function(e) {
             let xform = seen.Quaternion.xyToTransform(e.offsetRelative[0], e.offsetRelative[1]);
             modelGroup.transform(xform);
