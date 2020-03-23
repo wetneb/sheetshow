@@ -3,6 +3,7 @@ import GlpkBimonoidalLayout from './glpk_3d.js';
 import GlpkTwoDimensionalLayout from './glpk_2d.js';
 import Glpk from 'glpk.js';
 import Bezier from 'bezier-js';
+import DecoratedSurfacePainter from './decorated_surface_painter.js';
 import seen from './seen.js';
 
 /**
@@ -16,45 +17,30 @@ export default class SheetLayout {
                 this.wiresLayout = new GlpkBimonoidalLayout(diagram);
                 this.wiresLayout.compute();
                 this.discretization = 20;
+
+                this.decoratedSurfacePainter = new DecoratedSurfacePainter();
                 
-                this.sheetMaterial = new seen.Material(seen.Colors.hsl(0.6, 0.4, 0.4));
+                this.sheetMaterial = new seen.Material(seen.Colors.hsl(0.6, 0.4, 0.4, 0.5));
                 this.sheetMaterial.specularExponent = 5;
                 this.sheetBoundaryMaterial = new seen.Material(seen.Colors.black());
                 this.sheetMaterial.shader = seen.Shaders.Flat;
                 this.pathMaterial = new seen.Material(seen.Colors.hsl(0, 1, 0.5));
                 this.pathMaterial.shader = seen.Shaders.Flat;
+                this.pathStrokeWidth = 1;
         }
 
         // Returns a model for the given edge
         getSheetModel(edgeId) {
                 let model = seen.Models.default();
 
-                // build path
+                // build base path, one side of the sheet (at z = 0)
                 let edgeBezier = this.skeletonLayout.edges[edgeId]; 
                 let points = SheetLayout._discretizePath(edgeBezier, this.discretization);
                 let extrudeDirection = seen.P(0,0,this.wiresLayout.getSheetWidth());
 
-                // extrude
-                let extruded = seen.Shapes.extrude(points, extrudeDirection);
-                // remove the last quad as our paths are not cyclic
-                extruded.surfaces = extruded.surfaces.slice(0, extruded.surfaces.length-3);
-                for(let i = 0; i < extruded.surfaces.length; i++) {
-                        let surface = extruded.surfaces[i];
-                        surface.cullBackfaces = false;
-                        surface.fill(this.sheetMaterial);
-                        surface.stroke(this.sheetMaterial);
-                }
-
-                // build outer path
-                let translatedPoints = points.map(p => p.copy().translate(0, 0, -extrudeDirection.z));
-                let topEdge = [points[0], translatedPoints[0]];
-                let botEdge = [points[points.length-1], translatedPoints[points.length-1]];
-                let wireSurfaces = [points, translatedPoints, topEdge, botEdge].map(l => this._makeWireSurface(l));
-                extruded.surfaces = wireSurfaces; // .concat(extruded.surfaces);
-
-                // Add paths on the sheet
+                // build lines on the surface
                 let paths = this.diagram.getPathsOnEdge(edgeId);
-                let pathSurfaces = [];
+                let lines = [];
                 for(let i = 0; i < paths.length; i++) {
                         let pathPosition = this.wiresLayout.getPathPosition(edgeId, i);
                         let startingVertex = this.diagram.startingVertex(edgeId);
@@ -63,19 +49,53 @@ export default class SheetLayout {
                         if (startingVertex !== -1) {
                                 startPos = this.wiresLayout.getNodePosition(startingVertex, paths[i][0]);
                         }
-                        let endPos = this.wiresLayout.getNodePosition(endingVertex, paths[i][1]);
+                        let endPos = pathPosition;
                         if (endingVertex !== -1) {
                                 endPos = this.wiresLayout.getNodePosition(endingVertex, paths[i][1]);
                         }
                         let bentBezier = SheetLayout._bendBezier(edgeBezier, startPos, pathPosition, endPos);
                         let curve = SheetLayout._discretizePath(bentBezier, this.discretization);
-                        let surface = this._makeWireSurface(curve)
-                        surface.stroke(this.pathMaterial);
-                        pathSurfaces.push(surface);
+                        lines.push(curve);
                 }
-                extruded.surfaces = pathSurfaces.concat(extruded.surfaces);
-               
-                model.add(extruded);
+
+                // add models for each section of the base path
+                for(let i = 0; i < points.length -1; i++) {
+                        let fullPoints = [
+                                points[i],
+                                points[i+1],
+                                points[i+1].copy().translate(0, 0, extrudeDirection.z),
+                                points[i].copy().translate(0, 0, extrudeDirection.z)
+                        ];
+                        let lineIndices = [];
+                        for (let j = 0; j < lines.length; j++) {
+                                let line = lines[j];
+                                fullPoints.push(line[i]);
+                                fullPoints.push(line[i+1]);
+                                lineIndices.push({
+                                        indices: [fullPoints.length-2, fullPoints.length],
+                                        stroke: this.pathMaterial.color,
+                                        strokeWidth: this.pathStrokeWidth
+                                });
+                        }
+                        let surface = new seen.Surface(fullPoints, this.decoratedSurfacePainter);
+                        surface.surfaceIndices = [0,4];
+                        surface.lines = lineIndices;
+                        surface.cullBackfaces = false;
+                        surface.fill(this.sheetMaterial);
+                        // surface.stroke(this.sheetMaterial);
+                        model.add(new seen.Shape('sheet', [surface]));
+                }
+
+
+                // build outer path
+                /*
+                let translatedPoints = points.map(p => p.copy().translate(0, 0, -extrudeDirection.z));
+                let topEdge = [points[0], translatedPoints[0]];
+                let botEdge = [points[points.length-1], translatedPoints[points.length-1]];
+                let wireSurfaces = [points, translatedPoints, topEdge, botEdge].map(l => this._makeWireSurface(l));
+                extruded.surfaces = wireSurfaces; // .concat(extruded.surfaces);
+                */
+
                 return model;
         }
 
