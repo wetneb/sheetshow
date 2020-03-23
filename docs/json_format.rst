@@ -56,9 +56,11 @@ Sheet diagrams in bimonoidal categories are obtained by extruding monoidal strin
 the additive monoidal structure :math:`(\mathcal{C}, \oplus, O)`.
 Therefore our data structure for bimonoidal diagrams is based on that for monoidal diagrams.
 
+.. image:: sheet_diagram.svg
+
 A bimonoidal diagram is described by:
 
-* The number of input sheets, and the number of input wires on each of these input sheets;
+* The number of input sheets, and the number of input wires on each of these input sheets (in the example above: `[1, 2, 2]` at the top);
 * The slices of the bimonoidal diagram, which are seams between sheets. They are each described by:
 
   + The number of sheets passing to the left of the seam. We call this, again, the *offset*;
