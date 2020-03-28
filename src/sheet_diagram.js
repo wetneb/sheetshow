@@ -44,8 +44,8 @@ export default class SheetDiagram extends PlanarDiagram {
            nextEdgeId++;
         }
 
-        for(let i = 0; i < slices.length; i++) {
-             let slice = slices[i];
+        for(let i = 0; i < this.slices.length; i++) {
+             let slice = this.slices[i];
              if (slice.nodes === undefined) {
                 slice.nodes = [];
              }
@@ -121,28 +121,53 @@ export default class SheetDiagram extends PlanarDiagram {
                 nextNodeId++;
              }
 
-             // Add remaining fake whiskering nodes
-             let nbWhiskeringNodes = -1;
-             for(let m = 0; m < slice.inputs; m++) {
-                let paths = this.pathToNode[currentEdges[slice.offset + m]];
-                if (m > 0 && nbWhiskeringNodes !== paths.length - inputSheetCursors[m]) {
-                   throw new Error(`Joining up sheets with inconsistent numbers of wires on them, at slice ${i}`);
+             if (slice.swap === undefined) {
+                // Add remaining fake whiskering nodes
+                let nbWhiskeringNodes = -1;
+                for(let m = 0; m < slice.inputs; m++) {
+                    let paths = this.pathToNode[currentEdges[slice.offset + m]];
+                    if (m > 0 && nbWhiskeringNodes !== paths.length - inputSheetCursors[m]) {
+                    throw new Error(`Joining up sheets with inconsistent numbers of wires on them, at slice ${i}`);
+                    }
+                    nbWhiskeringNodes = paths.length - inputSheetCursors[m];
+                    for(let k = inputSheetCursors[m]; k < paths.length; k++) {
+                        let nodeId = nextNodeId + k - inputSheetCursors[m];
+                        paths[k].push(nodeId);
+                        this._addIncomingPath(i, nodeId, currentEdges[slice.offset + m], k);
+                    }
                 }
-                nbWhiskeringNodes = paths.length - inputSheetCursors[m];
-                for(let k = inputSheetCursors[m]; k < paths.length; k++) {
-                    let nodeId = nextNodeId + k - inputSheetCursors[m];
-                    paths[k].push(nodeId);
-                    this._addIncomingPath(i, nodeId, currentEdges[slice.offset + m], k);
+                for(let m = 0; m < slice.outputs; m++) {
+                    let paths = this.pathToNode[outputEdgeIds[m]];
+                    for(let k = 0; k < nbWhiskeringNodes; k++) {
+                        this._addOutgoingPath(i, nextNodeId + k, outputEdgeIds[m], paths.length);
+                        paths.push([nextNodeId + k]);
+                    }
                 }
+                this.nodesPerVertex.push(nextNodeId + nbWhiskeringNodes);
+             } else {
+                // For swaps, we bind the left input paths to the right output paths
+                // with fake nodes
+                let nbFakeNodes = 0;
+                for(let d = 0; d < 2; d++) {
+                    // Finish up and bind the input paths
+                    let paths = this.pathToNode[currentEdges[slice.offset + d]];
+                    for(let k = 0; k < paths.length; k++) {
+                        let nodeId = nextNodeId + k;
+                        paths[k].push(nodeId);
+                        this._addIncomingPath(i, nodeId, currentEdges[slice.offset + d], k);
+                    }
+                    // Bind them to output paths
+                    let outPaths = this.pathToNode[outputEdgeIds[1-d]];
+                    for(let k = 0; k < paths.length; k++) {
+                        let nodeId = nextNodeId + k;
+                        this._addOutgoingPath(i, nextNodeId + k, outputEdgeIds[1-d], outPaths.length);
+                        outPaths.push([nodeId]);
+                    }
+                    nextNodeId += paths.length;
+                    nbFakeNodes += paths.length;
+                }
+                this.nodesPerVertex.push(nbFakeNodes);
              }
-             for(let m = 0; m < slice.outputs; m++) {
-                let paths = this.pathToNode[outputEdgeIds[m]];
-                for(let k = 0; k < nbWhiskeringNodes; k++) {
-                   this._addOutgoingPath(i, nextNodeId + k, outputEdgeIds[m], paths.length);
-                   paths.push([nextNodeId + k]);
-                }
-             }
-             this.nodesPerVertex.push(nextNodeId + nbWhiskeringNodes);
 
              for(let j = 0; j < slice.outputs; j++) {
                 newCurrentEdges.push(outputEdgeIds[j]);
@@ -168,9 +193,15 @@ export default class SheetDiagram extends PlanarDiagram {
    } 
 
    serialize() {
+       let serializeSlice = function(slice) {
+          if (slice.swap !== undefined) {
+             return {swap: slice.swap};
+          }
+          return slice;
+       };
        return {
           inputs: this.inputSheets,
-          slices: this.slices
+          slices: this.slices.map(serializeSlice)
         };
    }
 

@@ -49,10 +49,45 @@ For more details about this data structure, refer to:
 
 * Antonin Delpeuch and Jamie Vicary. `Normalization for planar string diagrams and a quadratic equivalence algorithm <https://arxiv.org/pdf/1804.07832.pdf>`_, 2018, `arXiv:1804.07832 <https://arxiv.org/abs/1804.07832>`_.
 
+Adding symmetry
+---------------
+
+To obtain a language for symmetric monoidal categories, we do not need to add much.
+We can simply allow a particular type of slice which represent a swap of two adjacent wires.
+To simplify the format, instead of writing the swap fully as::
+
+   {
+      "offset": k,
+      "inputs": 2,
+      "outputs": 2
+   }
+
+We introduce a shorter notation, which at the same time encodes the particular role of the symmetry::
+
+   {
+      "swap": k
+   }
+
+It now becomes possible to encode symmetric monoidal diagrams::
+
+   {
+     "inputs": 1,
+     "slices": [
+       { "offset": 0, "inputs": 1, "outputs": 2 },
+       { "offset": 1, "inputs": 1, "outputs": 2 },
+       { "swap": 1 },
+       { "offset": 0, "inputs": 2, "outputs": 1 }
+     ]
+   }
+
+Which can be rendered as:
+
+.. image:: symmetric_monoidal_diagram.svg
+
 Bimonoidal diagrams
 -------------------
 
-Sheet diagrams in bimonoidal categories are obtained by extruding monoidal string diagrams for
+Sheet diagrams in bimonoidal categories are obtained by extruding symmetric monoidal string diagrams for
 the additive monoidal structure :math:`(\mathcal{C}, \oplus, O)`.
 Therefore our data structure for bimonoidal diagrams is based on that for monoidal diagrams.
 

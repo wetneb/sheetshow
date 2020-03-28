@@ -24,7 +24,7 @@ export default class PlanarDiagram {
      */
     constructor(nbInputs, slices) {
         this.nbInputs = nbInputs;
-        this.slices = slices;
+        this.slices = [...slices];
         this.domainLabels = new Map();
         this.codomainLabels = new Map();
  
@@ -36,8 +36,13 @@ export default class PlanarDiagram {
         }
         this.wiresAtLevel = [currentEdges];
         let nextEdgeIdx = nbInputs;
-        for(let i = 0; i < slices.length; i++) {
-            let slice = slices[i];
+        for(let i = 0; i < this.slices.length; i++) {
+            let slice = this.slices[i];
+            if (slice.swap !== undefined) {
+                // do not modify the arguments, create a new object with the infered info
+                this.slices[i] = Object.assign({offset:slice.swap, inputs:2, outputs:2}, slice);
+                slice = this.slices[i];
+            }
 
             if (slice.offset + slice.inputs > currentEdges.length) {
                 throw new Error(`Not enough input wires at slice ${i}`);
@@ -72,7 +77,7 @@ export default class PlanarDiagram {
             this.wiresAtLevel.push(currentEdges);
         }
         for(let i = 0; i < currentEdges.length; i++) {
-            this.edgeEnds[currentEdges[i]].push( slices.length );
+            this.edgeEnds[currentEdges[i]].push( this.slices.length );
         }
     }
 
@@ -96,16 +101,6 @@ export default class PlanarDiagram {
        return d;
     }
 
-    static deserializeLabels(jsonObj) {
-       let labels = new Map();
-       for(var key in jsonObj) {
-         if(jsonObj.hasOwnProperty(key)) {
-           labels.set(Number(key), jsonObj[key]);
-         } 
-       }
-       return labels;
-    }
-   
     /**
      * Serializes a planar diagram to JSON.
      */
@@ -158,5 +153,10 @@ export default class PlanarDiagram {
     // the vertex (offset, inputs, outputs) at the given height
     getVertex(idx) {
         return this.slices[idx];
+    }
+
+    // is this vertex a swap?
+    isSwapVertex(idx) {
+        return this.slices[idx].swap !== undefined;
     }
 }

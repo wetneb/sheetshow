@@ -139,6 +139,76 @@ test('hadamard', function() {
     expect(diag.nbNodesOnVertex(1)).toEqual(1);
 });
 
+test('controlled swap', function() {
+    let slices = [
+    {
+        offset: 0,
+        inputs: 1,
+        outputs: 2,
+        nodes: [{ offset: 0, inputs: [1], outputs: [0,0]}]
+    },
+    {
+        offset: 1,
+        inputs: 1,
+        outputs: 2,
+        nodes: [{
+           offset: 0, inputs: [1], outputs: [0,0]
+        }]
+    },
+    {
+        swap: 1
+    },
+   {
+        offset: 1,
+        inputs: 2,
+        outputs: 1,
+        nodes: [{ offset: 0, inputs: [0,0], outputs: [1]}]
+    },
+    {
+        offset: 0,
+        inputs: 2,
+        outputs: 1,
+        nodes: [{
+           offset: 0, inputs: [0,0], outputs: [1]
+        }]
+    }
+    ];
+    let diag = new SheetDiagram([2], slices);
+    
+    expect(diag.nbNodesOnVertex(0)).toEqual(2);
+    expect(diag.nbNodesOnVertex(1)).toEqual(1);
+    expect(diag.nbNodesOnVertex(2)).toEqual(0);
+    expect(diag.nbNodesOnVertex(3)).toEqual(1);
+    expect(diag.nbNodesOnVertex(4)).toEqual(2);
+    expect(diag.isSwapVertex(0)).toEqual(false);
+    expect(diag.isSwapVertex(1)).toEqual(false);
+    expect(diag.isSwapVertex(2)).toEqual(true);
+    expect(diag.isSwapVertex(3)).toEqual(false);
+    expect(diag.isSwapVertex(4)).toEqual(false);
+});
+
+test('binding nodes on swap', function() {
+    let diag = new SheetDiagram([2,3], [{swap: 0}]);
+    
+    expect(diag.isSwapVertex(0)).toEqual(true);
+    expect(diag.nbNodesOnVertex(0)).toEqual(2+3);
+    expect(diag.getIncomingPaths(0, 0)).toEqual([[0,0]]);
+    expect(diag.getIncomingPaths(0, 1)).toEqual([[0,1]]);
+    expect(diag.getIncomingPaths(0, 2)).toEqual([[1,0]]);
+    expect(diag.getIncomingPaths(0, 3)).toEqual([[1,1]]);
+    expect(diag.getIncomingPaths(0, 4)).toEqual([[1,2]]);
+    expect(diag.getOutgoingPaths(0, 0)).toEqual([[3,0]]);
+    expect(diag.getOutgoingPaths(0, 1)).toEqual([[3,1]]);
+    expect(diag.getOutgoingPaths(0, 2)).toEqual([[2,0]]);
+    expect(diag.getOutgoingPaths(0, 3)).toEqual([[2,1]]);
+    expect(diag.getOutgoingPaths(0, 4)).toEqual([[2,2]]);
+    expect(diag.getNode(0, 0)).toEqual(undefined);
+    expect(diag.getNode(0, 1)).toEqual(undefined);
+    expect(diag.getNode(0, 2)).toEqual(undefined);
+    expect(diag.getNode(0, 3)).toEqual(undefined);
+    expect(diag.getNode(0, 4)).toEqual(undefined);
+});
+
 test('inconsistent numbers of edges on joined sheets', function() {
     let slices = [{
         offset: 0,
@@ -197,4 +267,64 @@ test('not enough input sheets', function() {
    };
    expect(function() { SheetDiagram.deserialize(diagram) })
         .toThrow('Not enough input wires at slice 0');
+});
+
+test('serialize swap', function() {
+    let diag = {
+        "inputs": [ 2 ],
+        "slices": [
+            {
+                "offset": 0,
+                "inputs": 1,
+                "outputs": 2,
+                "nodes": [
+                    {
+                        "offset": 0,
+                        "inputs": [ 1 ],
+                        "outputs": [ 0, 0 ]
+                    }
+                ]
+            },
+            {
+                "offset": 1,
+                "inputs": 1,
+                "outputs": 2,
+                "nodes": [
+                    {
+                        "offset": 0,
+                        "inputs": [ 1 ],
+                        "outputs": [ 0, 0 ]
+                    }
+                ]
+            },
+            {
+                "swap": 1
+            },
+            {
+                "offset": 1,
+                "inputs": 2,
+                "outputs": 1,
+                "nodes": [
+                    {
+                        "offset": 0,
+                        "inputs": [ 0, 0 ],
+                        "outputs": [ 1 ]
+                    }
+                ]
+            },
+            {
+                "offset": 0,
+                "inputs": 2,
+                "outputs": 1,
+                "nodes": [
+                    {
+                        "offset": 0,
+                        "inputs": [ 0, 0 ],
+                        "outputs": [ 1 ]
+                    }
+                ]
+            }
+        ]
+    };
+    expect(SheetDiagram.deserialize(diag).serialize()).toEqual(diag);
 });

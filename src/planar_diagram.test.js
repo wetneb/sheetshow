@@ -65,3 +65,34 @@ test('startingVertex() and endingVertex()', function() {
       expect(diag.endingVertex(5)).toEqual(2);
       expect(diag.endingVertex(6)).toEqual(2);
 });
+
+test('swaps', function() {
+      let diag = new PlanarDiagram(3, [{swap: 1},{swap: 0},{swap: 1}]);
+
+      expect(diag.nbEdgesAtLevel(0)).toEqual(3);
+      expect(diag.nbEdgesAtLevel(1)).toEqual(3);
+      expect(diag.nbEdgesAtLevel(2)).toEqual(3);
+      expect(diag.nbVertices()).toEqual(3);
+      expect(diag.startingVertex(0)).toEqual(-1);
+      expect(diag.startingVertex(1)).toEqual(-1);
+      expect(diag.startingVertex(2)).toEqual(-1);
+      expect(diag.startingVertex(3)).toEqual(0);
+      expect(diag.startingVertex(4)).toEqual(0);
+      expect(diag.startingVertex(5)).toEqual(1);
+      expect(diag.startingVertex(6)).toEqual(1);
+      expect(diag.startingVertex(7)).toEqual(2);
+      expect(diag.startingVertex(8)).toEqual(2);
+      expect(diag.endingVertex(0)).toEqual(1);
+      expect(diag.endingVertex(1)).toEqual(0);
+      expect(diag.endingVertex(2)).toEqual(0);
+      expect(diag.endingVertex(3)).toEqual(1);
+      expect(diag.endingVertex(4)).toEqual(2);
+      expect(diag.endingVertex(5)).toEqual(3);
+      expect(diag.endingVertex(6)).toEqual(2);
+      expect(diag.endingVertex(7)).toEqual(3);
+      expect(diag.endingVertex(8)).toEqual(3);
+
+     expect(diag.isSwapVertex(0)).toEqual(true);
+     expect(diag.isSwapVertex(1)).toEqual(true);
+     expect(diag.isSwapVertex(2)).toEqual(true);
+});
