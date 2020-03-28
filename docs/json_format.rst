@@ -20,6 +20,7 @@ A diagram in general position can be decomposed as a sequence of horizontal *sli
 contains exactly one node.
 
 .. image:: monoidal_diagram.svg
+    :align: center
 
 One can therefore encode the diagram as follows:
 
@@ -57,7 +58,7 @@ We can simply allow a particular type of slice which represent a swap of two adj
 To simplify the format, instead of writing the swap fully as::
 
    {
-      "offset": k,
+      "offset": 3,
       "inputs": 2,
       "outputs": 2
    }
@@ -65,7 +66,7 @@ To simplify the format, instead of writing the swap fully as::
 We introduce a shorter notation, which at the same time encodes the particular role of the symmetry::
 
    {
-      "swap": k
+      "swap": 3
    }
 
 It now becomes possible to encode symmetric monoidal diagrams::
@@ -83,6 +84,7 @@ It now becomes possible to encode symmetric monoidal diagrams::
 Which can be rendered as:
 
 .. image:: symmetric_monoidal_diagram.svg
+    :align: center
 
 Bimonoidal diagrams
 -------------------
@@ -92,6 +94,7 @@ the additive monoidal structure :math:`(\mathcal{C}, \oplus, O)`.
 Therefore our data structure for bimonoidal diagrams is based on that for monoidal diagrams.
 
 .. image:: sheet_diagram.svg
+    :align: center
 
 A bimonoidal diagram is described by:
 
@@ -112,4 +115,34 @@ We describe them with the following data:
 * For each input sheet, the number of wires connected to the node;
 * For each output sheet, the number of wires connected to the node.
 
+Which is encoded in JSON as::
 
+    {
+        "inputs": [ 1, 2, 2 ],
+        "slices": [
+            {
+                "offset": 1,
+                "inputs": 1,
+                "outputs": 2,
+                "nodes": [
+                    {
+                        "offset": 0,
+                        "inputs": [ 1 ],
+                        "outputs": [ 1, 1 ]
+                    }
+                ]
+            },
+            {
+                "offset": 2,
+                "inputs": 2,
+                "outputs": 2,
+                "nodes": [
+                    {
+                        "offset": 0,
+                        "inputs": [ 2, 2 ],
+                        "outputs": [ 1, 1 ]
+                    }
+                ]
+            }
+        ]
+    }

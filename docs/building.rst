@@ -6,6 +6,16 @@ Building
 Getting started
 ---------------
 
+To make changes to the application, you will need Node.js and NPM, its package manager. Install them `here <https://www.npmjs.com/get-npm>`_.
+
+Running locally
+---------------
+
+To run the application locally, use::
+
+   npm start
+
+This will spin a development web server and you will be able to view the application at `http://localhost:8080/ <http://localhost:8080/>`_. The application will reload automatically when you change files.
 
 Deploying
 ---------
