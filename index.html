@@ -34,6 +34,21 @@
                                 <a class="btn btn-default" id="svg-export" href="#" download="sheet_diagram.svg">Save as SVG</a>
                                 <a class="btn btn-default" id="share-url" href="#">Share URL</a>
                             </div>
+                            <hr />
+                            <div class="panel panel-default">
+                                <div class="panel-heading"><h4>Diagram library</h4></div>
+                                <div class="panel-body">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" placeholder="Name your diagram" id="diag-name-input">
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-default" type="button" id="save-diagram">Save locally</button>
+                                        </span>
+                                    </div>
+                                    <br />
+                                    <div id="saved-diagrams" class="list-group">
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div class="col-md-6">
                             <textarea id="json-textarea" class="form-control" rows="50" spellcheck="false"></textarea>
