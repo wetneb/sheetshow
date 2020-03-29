@@ -4,6 +4,7 @@ import GlpkTwoDimensionalLayout from './glpk_2d.js';
 import Glpk from 'glpk.js';
 import Bezier from 'bezier-js';
 import DecoratedSurfacePainter from './decorated_surface_painter.js';
+import FlatTextPainter from './flat_text_painter.js';
 import seen from './seen.js';
 
 /**
@@ -19,6 +20,7 @@ export default class SheetLayout {
                 this.discretization = 20;
 
                 this.decoratedSurfacePainter = new DecoratedSurfacePainter();
+                this.flatTextPainter = new FlatTextPainter();
                 
                 this.sheetMaterial = new seen.Material(seen.Colors.hsl(0.6, 0.4, 0.4, 0.5));
                 this.sheetMaterial.specularExponent = 5;
@@ -27,6 +29,9 @@ export default class SheetLayout {
                 this.pathMaterial = new seen.Material(seen.Colors.hsl(0, 1, 0.5));
                 this.pathMaterial.shader = seen.Shaders.Flat;
                 this.pathStrokeWidth = 1;
+
+                this.nodeLabelYDist = 8;
+                this.nodeLabelZDist = 0;
         }
 
         // Returns a model for the given edge
@@ -157,6 +162,15 @@ export default class SheetLayout {
                                        sphere.scale(3).translate(vertex2d.x, vertex2d.y, this.wiresLayout.getNodePosition(i, j));
                                        sphere.fill(this.pathMaterial);
                                        model = model.add(sphere); 
+
+                                       if (nodeMetadata.label !== undefined) {
+                                                let text = seen.Shapes.text(nodeMetadata.label,
+                                                   {font : '10px Roboto', cullBackfaces : false, anchor : 'center'})
+                                                .translate(vertex2d.x, vertex2d.y + this.nodeLabelYDist, this.wiresLayout.getNodePosition(i, j) + this.nodeLabelZDist)
+                                                .fill('#000000');
+                                                text.surfaces[0].painter = this.flatTextPainter;
+                                                model = model.add(text);
+                                       }
                                 }
                         }
                 }

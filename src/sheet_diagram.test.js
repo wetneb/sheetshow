@@ -328,3 +328,44 @@ test('serialize swap', function() {
     };
     expect(SheetDiagram.deserialize(diag).serialize()).toEqual(diag);
 });
+
+test('diagram annotations', function() {
+      let slices = [{
+                offset:1,
+                inputs:1,
+                outputs:2,
+                nodes: [
+                   {
+                      offset: 0,
+                      inputs: [1],
+                      outputs: [1,1],
+                      label: "$f$"
+                   }
+                ]
+              },
+              {
+                 offset:2,
+                 inputs:2,
+                 outputs:2,
+                 nodes: [
+                   {
+                      offset: 0,
+                      inputs: [2, 2],
+                      outputs: [1, 1],
+                      label: "$g$"
+                   }
+                ]
+              }];
+      let diag = new SheetDiagram([ ["A"], ["B","C"], 2], slices);
+
+      expect(diag.getNode(0,0)).toEqual({ offset: 0, inputs: [1], outputs: [1,1], label: "$f$"});
+      expect(diag.getNode(0,1)).toEqual(undefined);
+      expect(diag.getNode(1,0)).toEqual({ offset: 0, inputs: [2,2], outputs: [1,1], label: "$g$" });
+      expect(diag.getDomainLabel(0, 0)).toEqual("A");
+      expect(diag.getDomainLabel(1, 0)).toEqual("B");
+      expect(diag.getDomainLabel(1, 1)).toEqual("C");
+      expect(diag.getDomainLabel(2, 0)).toEqual(undefined);
+      expect(diag.getDomainLabel(2, 1)).toEqual(undefined);
+});
+
+

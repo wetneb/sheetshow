@@ -10,7 +10,8 @@ test('simple diagram', function() {
                    {
                       offset: 0,
                       inputs: [1],
-                      outputs: [1,1]
+                      outputs: [1,1],
+                      label: "f"
                    }
                 ]
               },
@@ -22,7 +23,8 @@ test('simple diagram', function() {
                    {
                       offset: 0,
                       inputs: [2, 2],
-                      outputs: [1, 1]
+                      outputs: [1, 1],
+                      label: "g"
                    }
                 ]
               }];

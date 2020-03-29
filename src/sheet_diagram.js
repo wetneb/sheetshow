@@ -36,7 +36,8 @@ export default class SheetDiagram extends PlanarDiagram {
         let nextNodeId = 0;
         for(let i = 0; i < inputSheets.length; i++) {
            let pathsOnCurrentSheet = [];
-           for(let j = 0; j < inputSheets[i]; j++) {
+           let nbPaths = typeof inputSheets[i] === 'object' ? inputSheets[i].length : inputSheets[i];
+           for(let j = 0; j < nbPaths; j++) {
                pathsOnCurrentSheet.push([j]);
            }
            this.pathToNode.push(pathsOnCurrentSheet);
@@ -225,12 +226,23 @@ export default class SheetDiagram extends PlanarDiagram {
         let current = this.outgoingPaths.get(`${vertexId}_${nodeId}`);
         return current === undefined ? [] : current;
    }
-   
+
    /**
     * The node metadata obtained from the original definition of the diagram
     */
    getNode(vertexId, nodeId) {
         return this.nodeMetadata.get(`${vertexId}_${nodeId}`);
+   }
+
+   /**
+    * The label of the path on the given sheet.
+    */
+   getDomainLabel(sheetId, pathId) {
+        let sheet = this.inputSheets[sheetId];
+        if (typeof sheet === 'object') {
+                return sheet[pathId];
+        }
+        return undefined;
    }
 
    _addIncomingPath(vertexId, nodeId, edgeId, pathId) {
