@@ -33,6 +33,7 @@ When invoked like this, Inkscape will generate two files:
 Let us take the following diagram as example:
 
 .. image:: sheet_diagram_with_labels.svg
+    :align: center
 
 It is converted to a PDF file where different layers in the picture are split into pages, and the accompanying LaTeX code is generated::
 
@@ -114,6 +115,7 @@ We can then include the diagram in a :math:`\LaTeX` document as::
 This produces the following output:
 
 .. image:: latex_output.svg
+    :align: center
 
 
 Automation
