@@ -1,5 +1,5 @@
 
-import seen from './seen.js';
+import seen from 'seen';
 
 /**
  * A painter for text that remains in front of the camera all the time.

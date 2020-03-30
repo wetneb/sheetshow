@@ -6,7 +6,8 @@
   "dependencies": {
     "bezier-js": "^2.4.0",
     "glpk.js": "^2.0.1",
-    "js-base64": "^2.5.1"
+    "js-base64": "^2.5.1",
+    "seen": "^0.2.7"
   },
   "scripts": {
     "test": "jest",

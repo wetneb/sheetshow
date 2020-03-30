@@ -5,7 +5,7 @@ import Glpk from 'glpk.js';
 import Bezier from 'bezier-js';
 import DecoratedSurfacePainter from './decorated_surface_painter.js';
 import FlatTextPainter from './flat_text_painter.js';
-import seen from './seen.js';
+import seen from 'seen';
 
 /**
  * Renders a sheet diagram to SVG.

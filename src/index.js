@@ -2,7 +2,7 @@ import SheetDiagram from './sheet_diagram.js';
 import SheetLayout from './sheet_layout.js';
 import DiagramLibrary from './library.js';
 import { Base64 } from 'js-base64';
-import seen from './seen.js';
+import seen from 'seen';
 
 /** SVG export **/
 
