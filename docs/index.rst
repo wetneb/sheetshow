@@ -12,6 +12,7 @@ Morphisms are defined in a JSON format which is translated by the renderer as ve
    :caption: Contents:
 
    json_format
+   latex
    rendering
    building
    testing

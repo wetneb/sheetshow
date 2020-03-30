@@ -74,6 +74,7 @@ constraint system, which can be solved independently of the first one.
 
 Again, we assume that paths are straight lines drawn on the sheets, except at the ends where Bezier curves are used to link them to the nodes they connect to. We add the same spacing constraint on any two paths embedded in the same sheet. To link paths to
 vertices, we have two options:
+
  * the *strict mode*, where nodes are required to be positioned at the average of paths connecting to it in a given sheet, for all input and output sheets;
  * the *lax mode*, where instead nodes are required to be positioned at the average of all their input paths which must be equal to the average of all their output paths.
 

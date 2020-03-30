@@ -31,6 +31,7 @@ export default class SheetLayout {
                 this.pathStrokeWidth = 1;
 
                 this.nodeLabelYDist = 8;
+                this.pathLabelYDist = 5;
                 this.nodeLabelZDist = 0;
         }
 
@@ -164,21 +165,39 @@ export default class SheetLayout {
                                        model = model.add(sphere); 
 
                                        if (nodeMetadata.label !== undefined) {
-                                                let text = seen.Shapes.text(nodeMetadata.label,
-                                                   {font : '10px Roboto', cullBackfaces : false, anchor : 'center'})
-                                                .translate(vertex2d.x, vertex2d.y + this.nodeLabelYDist, this.wiresLayout.getNodePosition(i, j) + this.nodeLabelZDist)
-                                                .fill('#000000');
-                                                text.surfaces[0].painter = this.flatTextPainter;
-                                                model = model.add(text);
+                                                model = model.add(this._createTextNode(nodeMetadata.label,
+                                                        vertex2d.x, vertex2d.y + this.nodeLabelYDist, this.wiresLayout.getNodePosition(i,j) + this.nodeLabelZDist));
                                        }
                                 }
                         }
                 }
- 
+        
+                // add labels on domains 
+                for(let i = 0; i < this.diagram.edgesAtLevel(0).length; i++) {
+
+                        let edgeBezier = this.skeletonLayout.edges[i]; 
+                        let basePoint = SheetLayout._discretizePath(edgeBezier, this.discretization)[0];
+                        for(let j = 0; j < this.diagram.getPathsOnEdge(i).length; j++) {
+                                let label = this.diagram.getDomainLabel(i, j);
+                                let pathPosition = this.wiresLayout.getPathPosition(i, j);
+                                if (label !== undefined) {
+                                        model = model.add(this._createTextNode(label, basePoint.x, basePoint.y - this.pathLabelYDist, pathPosition));
+                                }
+                        }
+                }
                 
                 model.translate(-this.skeletonLayout.width/2, -this.skeletonLayout.height/2,-this.wiresLayout.getSheetWidth()/2)
                         .scale(2);
                 return model;
+        }
+
+        _createTextNode(textContent, x, y, z) {
+                let text = seen.Shapes.text(textContent,
+                    {font : '10px Roboto', cullBackfaces : false, anchor : 'center'})
+                .translate(x, y, z)
+                .fill('#000000');
+                text.surfaces[0].painter = this.flatTextPainter;
+                return text;
         }
 
         /**
