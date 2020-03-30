@@ -193,7 +193,7 @@ export default class SheetLayout {
 
         _createTextNode(textContent, x, y, z) {
                 let text = seen.Shapes.text(textContent,
-                    {font : '10px Roboto', cullBackfaces : false, anchor : 'center'})
+                    {font : '10px Roboto', cullBackfaces : false, anchor : 'middle'})
                 .translate(x, y, z)
                 .fill('#000000');
                 text.surfaces[0].painter = this.flatTextPainter;
