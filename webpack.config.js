@@ -15,4 +15,18 @@ module.exports = {
     path: path.resolve(__dirname, 'dist'),
     library: 'sheetshow',
   },
+  resolve: {
+    alias: {
+      'vue$': 'vue/dist/vue.esm.js'
+    },
+    extensions: ['*', '.js', '.vue', '.json']
+  },
+  module: {
+    rules: [
+      {
+	test: /\.vue$/,
+	loader: 'vue-loader'
+      }
+    ]
+  }
 };

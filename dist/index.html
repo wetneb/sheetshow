@@ -35,17 +35,24 @@
                                 <a class="btn btn-default" id="share-url" href="#">Share URL</a>
                             </div>
                             <hr />
-                            <div class="panel panel-default">
+                            <div class="panel panel-default" id="diagLibrary">
                                 <div class="panel-heading"><h4>Diagram library</h4></div>
                                 <div class="panel-body">
                                     <div class="input-group">
-                                        <input type="text" class="form-control" placeholder="Name your diagram" id="diag-name-input">
+					<input type="text" class="form-control" placeholder="Name your diagram" id="diag-name-input" v-model="currentName">
                                         <span class="input-group-btn">
-                                            <button class="btn btn-default" type="button" id="save-diagram">Save locally</button>
+                                            <button class="btn btn-default" type="button" id="save-diagram" v-on:click.stop="saveDiag">Save locally</button>
                                         </span>
                                     </div>
                                     <br />
                                     <div id="saved-diagrams" class="list-group">
+					    <a v-for="{name, diagram} in library.lst"
+					       v-bind:key="name"
+					       v-on:click.stop="loadDiag($event, name)"
+					       class="list-group-item">
+						    {{ name }}
+						    <button class="btn btn-default btn-xs" style="float: right" v-on:click.stop="deleteDiag($event, name)"><span class="glyphicon glyphicon-trash" /></button>
+					    </a>
                                     </div>
                                 </div>
                             </div>

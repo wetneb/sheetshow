@@ -3,6 +3,42 @@ import SheetLayout from './sheet_layout.js';
 import DiagramLibrary from './library.js';
 import { Base64 } from 'js-base64';
 import seen from 'seen';
+import Vue from 'vue';
+
+// global state
+var currentDiagram = null;
+var library = new DiagramLibrary();
+
+/** Diagram library **/
+
+let vueLibrary = new Vue({
+	el: '#diagLibrary',
+	data: {
+		currentName: '',
+		library
+	},
+	methods: {
+		deleteDiag: function(e, name) {
+			this.library.remove(name);
+		},
+		saveDiag: function(e) {
+			if (this.currentName.length > 0) {
+				this.library.addDiagram(this.currentName, currentDiagram);
+			}
+		},
+		loadDiag: function(e, name) {
+			let diag = this.library.getDiagram(name);
+			updateTextarea(diag);
+			renderDiagram(diag);
+			this.currentName = name;
+		}
+	},
+	watch: {
+		library: { deep: true, handler() {
+			window.localStorage.setItem('diagram-library', JSON.stringify(this.library.exportToJSON()));
+		}}
+	}
+});
 
 /** SVG export **/
 
@@ -22,9 +58,6 @@ function scheduleSVGLinkUpdate() {
 }
 
 /** Rendering of JSON changes **/
-
-var currentDiagram = null;
-var library = new DiagramLibrary();
 
 function onJSONChange(evt) {
         let errorP = document.getElementById('parsing-error');
@@ -108,19 +141,11 @@ export function setUp(initialDiagram) {
         jsonTextarea.onchange = onJSONChange;
         let shareURLButton = document.getElementById('share-url');
         shareURLButton.onclick = showShareURL;
-        document.getElementById('save-diagram').onclick = function() {
-                let name = document.getElementById('diag-name-input').value;
-                if (name.length > 0) {
-                        library.addDiagram(name, currentDiagram);
-                        updateLibrary();
-                }
-        };
 
         // restore library from local storage
         let restored = window.localStorage.getItem('diagram-library');
         if (restored !== null) {
                 library.importFromJSON(JSON.parse(restored));
-                updateLibrary();
         }
 }
 
@@ -133,42 +158,4 @@ function showShareURL(e) {
         e.preventDefault();
 }
 
-/** Diagram library **/
 
-function updateLibrary() {
-        let libElement = document.getElementById('saved-diagrams');
-        libElement.textContent = '';
-        library.names().forEach(n => renderDiagButton(n, libElement));
-        window.localStorage.setItem('diagram-library', JSON.stringify(library.exportToJSON()));
-}
-
-function renderDiagButton(name, libElement) {
-        let elem = document.createElement('a');
-        elem.classList.add('list-group-item');
-        elem.appendChild(document.createTextNode(name));
-        let button = document.createElement('button');
-        button.classList.add('btn');
-        button.classList.add('btn-default');
-        button.classList.add('btn-xs');
-        button.style = 'float: right';
-        let trash = document.createElement('span');
-        trash.classList.add('glyphicon');
-        trash.classList.add('glyphicon-trash');
-        button.appendChild(trash);
-        elem.appendChild(button);
-        trash.onclick = function(e) { deleteDiag(name); e.preventDefault(); };
-        elem.onclick = function(e) { loadDiagramFromLibrary(name); };
-        libElement.appendChild(elem);
-}
-
-function deleteDiag(name) {
-        library.remove(name);
-        updateLibrary();
-}
-
-function loadDiagramFromLibrary(name) {
-        let diag = library.getDiagram(name);
-        updateTextarea(diag);
-        renderDiagram(diag);
-        document.getElementById('diag-name-input').value = name;
-}
