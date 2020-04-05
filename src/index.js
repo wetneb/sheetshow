@@ -4,6 +4,7 @@ import DiagramLibrary from './library.js';
 import { Base64 } from 'js-base64';
 import seen from 'seen';
 import Vue from 'vue';
+import { prettyPrintJSON } from './util.js';
 
 // global state
 var currentDiagram = null;
@@ -12,8 +13,10 @@ var library = new DiagramLibrary();
 /** Diagram library **/
 
 let vueLibrary = new Vue({
-	el: '#diagLibrary',
+	el: '#app',
 	data: {
+		jsonText: '',
+		currentDiagram: null,
 		currentName: '',
 		library
 	},
@@ -23,20 +26,37 @@ let vueLibrary = new Vue({
 		},
 		saveDiag: function(e) {
 			if (this.currentName.length > 0) {
-				this.library.addDiagram(this.currentName, currentDiagram);
+				this.library.addDiagram(this.currentName, this.currentDiagram);
 			}
 		},
 		loadDiag: function(e, name) {
-			let diag = this.library.getDiagram(name);
-			updateTextarea(diag);
-			renderDiagram(diag);
+			this.currentDiagram = this.library.getDiagram(name);
+			this.jsonText = prettyPrintJSON(this.currentDiagram.serialize()); 
 			this.currentName = name;
+		}
+	},
+	computed: {
+		parsedDiagram: function() {
+			try {
+				let parsed = JSON.parse(this.jsonText);
+				return {diagram: SheetDiagram.deserialize(parsed)};
+			} catch(e) {
+				return {error: e.message};
+			}
+
 		}
 	},
 	watch: {
 		library: { deep: true, handler() {
 			window.localStorage.setItem('diagram-library', JSON.stringify(this.library.exportToJSON()));
-		}}
+		}},
+		jsonText: function() {
+			let diag = this.parsedDiagram;
+			if (diag.diagram !== undefined) {
+				renderDiagram(diag.diagram);
+				this.currentDiagram = diag.diagram;
+			}
+		}
 	}
 });
 
@@ -57,39 +77,7 @@ function scheduleSVGLinkUpdate() {
         updateSVGLinkTimeout = setTimeout(updateSVGLink, 500);
 }
 
-/** Rendering of JSON changes **/
-
-function onJSONChange(evt) {
-        let errorP = document.getElementById('parsing-error');
-        let jsonTextarea = document.getElementById('json-textarea');
-        let json = jsonTextarea.value;
-        try {
-                let parsed = JSON.parse(json);
-                let diag = SheetDiagram.deserialize(parsed);
-                updateTextarea(diag);
-                renderDiagram(diag);
-                errorP.innerHTML = '';
-        } catch(e) {
-                errorP.innerHTML = e.message;
-        }
-}
-
-function updateTextarea(diagram) {
-        let text = JSON.stringify(diagram.serialize(), null, 4);
-        let replacer = function(match, d1, d2) {
-            return ''+d1+' '+d2
-        };
-        let prettyPrint = function(json) {
-            let currentStr = json.replace(/(\[|\d,)\n *(\d)/, replacer).replace(/(\d)\n *(\])/, replacer);
-            if (currentStr !== json) {
-                return prettyPrint(currentStr);
-            } else {
-                return currentStr;
-            }
-        }
-        document.getElementById('json-textarea').value = prettyPrint(text);
-}
-
+/** Diagram rendering **/
 
 var modelGroup = null;
 var seenContext = null;
@@ -100,7 +88,6 @@ function renderDiagram(diag) {
         modelGroup.children = [model];
         modelGroup.dirty = true;
         seenContext.render();
-        currentDiagram = diag;
         scheduleSVGLinkUpdate();
 }
 
@@ -118,7 +105,7 @@ export function setUp(initialDiagram) {
             }
         }
 
-        updateTextarea(diag);
+	vueLibrary.jsonText = prettyPrintJSON(diag.serialize());
 
         let viewport = seen.Viewports.center(400, 400);
         let scene = new seen.Scene({model: seen.Models.default(), viewport: viewport, fractionalPoints: true});
@@ -137,8 +124,6 @@ export function setUp(initialDiagram) {
 
         renderDiagram(diag);
 
-        let jsonTextarea = document.getElementById('json-textarea');
-        jsonTextarea.onchange = onJSONChange;
         let shareURLButton = document.getElementById('share-url');
         shareURLButton.onclick = showShareURL;
 
@@ -153,7 +138,7 @@ export function setUp(initialDiagram) {
 /** Share URL button **/
 
 function showShareURL(e) {
-        let diagramJSON = Base64.encode(JSON.stringify(currentDiagram.serialize()));
+        let diagramJSON = Base64.encode(JSON.stringify(vueLibrary.currentDiagram.serialize()));
         window.location.hash = '#'+diagramJSON;
         e.preventDefault();
 }

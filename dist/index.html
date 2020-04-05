@@ -8,7 +8,7 @@
                 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous" />
         </head>
         <body>
-            <div class="container">
+            <div class="container" id="app">
                     <nav class="navbar navbar-default">
                         <div class="container-fluid">
                             <div class="navbar-header">
@@ -28,7 +28,7 @@
                                 <svg width="400" height="400" id="seen-canvas"></svg>
                             </div>
                             <div>
-                                <p id="parsing-error" style="color: red"></p>
+				    <p id="parsing-error" style="color: red">{{ parsedDiagram.error }}</p>
                             </div>
                             <div class="btn-group" role="group" aria-label="Diagram actions">
                                 <a class="btn btn-default" id="svg-export" href="#" download="sheet_diagram.svg">Save as SVG</a>
@@ -58,7 +58,7 @@
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <textarea id="json-textarea" class="form-control" rows="50" spellcheck="false"></textarea>
+                            <textarea id="json-textarea" class="form-control" rows="50" spellcheck="false" v-model="jsonText"></textarea>
                         </div>
                         <hr />
                     </div>
