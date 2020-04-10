@@ -35,8 +35,85 @@
                                 <a class="btn btn-default" id="share-url" href="#">Share URL</a>
                             </div>
                             <hr />
+                            <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+                            <div class="panel panel-default">
+                                <div class="panel-heading" role="tab" id="headingTheme">
+                                        <a role="button" v-on:click.stop="toggleThemePanel" href="#theme">Theme</a>
+                                        <button v-if="themePanelVisible" class="btn btn-default btn-xs" style="float: right" v-on:click.stop="saveTheme"><span class="glyphicon glyphicon-floppy-disk" /></button>
+                                </div>
+                                <div id="theme" class="panel-collapse collapse" v-bind:class="{ in: themePanelVisible }" role="tabpanel" aria-labelledby="headingTheme">
+                                    <div class="panel-body">
+                                    <div class="col-md-6">
+                                        <h5>Sheets</h5>
+                                        <div class="input-group" v-bind:class="{ 'has-error': sheetColorError }">
+                                            <span class="input-group-addon">Color: #</span>
+                                            <input type="text" class="form-control" aria-label="Sheet color (in HTML)" v-model="sheetColor">
+                                            <span class="input-group-addon">(HTML)</span>
+                                        </div>
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Opacity</span>
+                                            <input type="number" min="0" max="100" class="form-control" aria-label="Sheet opacity (as percentage)" v-model.number="sheetOpacity">
+                                            <span class="input-group-addon">%</span>
+                                        </div>
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Specular</span>
+                                            <input type="number" min="0" max="100" class="form-control" aria-label="Sheet material specular exponent" v-model.number="sheetSpecular">
+                                        </div>
+
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h5>Wires and nodes</h5>
+                                        <div class="input-group" v-bind:class="{ 'has-error': wireColorError }">
+                                            <span class="input-group-addon">Color: #</span>
+                                            <input type="text" class="form-control" aria-label="Wire color (in HTML)" v-model="wireColor">
+                                            <span class="input-group-addon">(HTML)</span>
+                                        </div>
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Thickness</span>
+                                            <input type="number" min="0" max="50" class="form-control" aria-label="Thickness (in px)" v-model.number="wireThickness">
+                                            <span class="input-group-addon">px</span>
+                                        </div>
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Node size</span>
+                                            <input type="number" min="0" max="50" class="form-control" aria-label="Size (in px)" v-model.number="nodeSize">
+                                            <span class="input-group-addon">px</span>
+                                        </div>
+
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h5>Geometry</h5>
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Slice height</span>
+                                            <input type="number" min="1" class="form-control" aria-label="Slice height (in px)" v-model.number="sliceHeight">
+                                            <span class="input-group-addon">px</span>
+                                        </div>
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Sheet distance</span>
+                                            <input type="number" min="1" class="form-control" aria-label="Sheet distance (in px)" v-model.number="sheetDistance">
+                                            <span class="input-group-addon">px</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h5>Wire layout</h5>
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Spacing</span>
+                                            <input type="number" min="1" class="form-control" aria-label="Wire spacing (in px)" v-model.number="wireSpacing">
+                                            <span class="input-group-addon">px</span>
+                                        </div>
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Margin</span>
+                                            <input type="number" min="1" class="form-control" aria-label="Wire margin (in px)" v-model.number="wireMargin">
+                                            <span class="input-group-addon">px</span>
+                                        </div>
+                                    </div>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="panel panel-default" id="diagLibrary">
-                                <div class="panel-heading"><h4>Diagram library</h4></div>
+                                <div class="panel-heading" role="tab" id="headingLibrary">
+                                    <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseLibrary" aria-expanded="false" aria-controls="#collapseLibrary">Diagram library</a>
+                                </div>
+                                <div class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingLibrary">
                                 <div class="panel-body">
                                     <div class="input-group">
 					<input type="text" class="form-control" placeholder="Name your diagram" id="diag-name-input" v-model="currentName">
@@ -55,7 +132,9 @@
 					    </a>
                                     </div>
                                 </div>
+                                </div>
                             </div>
+                        </div>
                         </div>
                         <div class="col-md-6">
                             <textarea id="json-textarea" class="form-control" rows="50" spellcheck="false" v-model="jsonText"></textarea>
