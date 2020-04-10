@@ -12,13 +12,27 @@ var library = new DiagramLibrary();
 
 /** Diagram library **/
 
+let htmlColorPattern = /^[0-9a-f]{6}$/;
+
 let vueLibrary = new Vue({
 	el: '#app',
 	data: {
 		jsonText: '',
 		currentDiagram: null,
 		currentName: '',
-		library
+                themePanelVisible: false,
+		library,
+                // theme
+                sheetColor: '2233aa',
+                sheetOpacity: 50,
+                sheetSpecular: 5,
+                wireColor: '000000',
+                wireThickness: 1,
+                nodeSize: 3,
+                sliceHeight: 40,
+                sheetDistance: 29,
+                wireSpacing: 15,
+                wireMargin: 15
 	},
 	methods: {
 		deleteDiag: function(e, name) {
@@ -33,7 +47,14 @@ let vueLibrary = new Vue({
 			this.currentDiagram = this.library.getDiagram(name);
 			this.jsonText = prettyPrintJSON(this.currentDiagram.serialize()); 
 			this.currentName = name;
-		}
+		},
+                saveTheme: function(e) {
+			window.localStorage.setItem('diagram-theme', JSON.stringify(this.theme));
+                },
+                toggleThemePanel: function(e) {
+                        this.themePanelVisible = !this.themePanelVisible;
+                        e.preventDefault();
+                }
 	},
 	computed: {
 		parsedDiagram: function() {
@@ -43,8 +64,27 @@ let vueLibrary = new Vue({
 			} catch(e) {
 				return {error: e.message};
 			}
-
-		}
+		},
+                sheetColorError: function() {
+                        return ! htmlColorPattern.test(this.sheetColor);
+                },
+                wireColorError: function() {
+                        return ! htmlColorPattern.test(this.wireColor);
+                },
+                theme: function() {
+                        return {
+                                sheetColor: this.sheetColorError ? '1122aa' : this.sheetColor,
+                                sheetOpacity: this.sheetOpacity,
+                                sheetSpecular: this.sheetSpecular,
+                                wireColor: this.wireColorError ? '000000' : this.wireColor,
+                                wireThickness: this.wireThickness,
+                                nodeSize: this.nodeSize,
+                                sliceHeight: this.sliceHeight,
+                                sheetDistance: this.sheetDistance,
+                                wireSpacing: this.wireSpacing,
+                                wireMargin: this.wireMargin
+                        };
+                }
 	},
 	watch: {
 		library: { deep: true, handler() {
@@ -53,10 +93,13 @@ let vueLibrary = new Vue({
 		jsonText: function() {
 			let diag = this.parsedDiagram;
 			if (diag.diagram !== undefined) {
-				renderDiagram(diag.diagram);
+				renderDiagram(diag.diagram, this.theme);
 				this.currentDiagram = diag.diagram;
 			}
-		}
+		},
+                theme: function() {
+                        renderDiagram(this.currentDiagram, this.theme);
+                }
 	}
 });
 
@@ -82,8 +125,8 @@ function scheduleSVGLinkUpdate() {
 var modelGroup = null;
 var seenContext = null;
 
-function renderDiagram(diag) {
-        let layout = new SheetLayout(diag);
+function renderDiagram(diag, theme) {
+        let layout = new SheetLayout(diag, theme);
         let model = layout.getModel(); 
         modelGroup.children = [model];
         modelGroup.dirty = true;
@@ -132,6 +175,9 @@ export function setUp(initialDiagram) {
         if (restored !== null) {
                 library.importFromJSON(JSON.parse(restored));
         }
+        // restore theme from local storage
+        let theme = JSON.parse(window.localStorage.getItem('diagram-theme'));
+        Object.assign(vueLibrary, theme);
 }
 
 

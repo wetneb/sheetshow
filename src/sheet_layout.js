@@ -11,24 +11,44 @@ import seen from 'seen';
  * Renders a sheet diagram to SVG.
  */
 export default class SheetLayout {
-        constructor(diagram) {
+        constructor(diagram, options) {
                 this.diagram = diagram;
+                this.options = Object.assign(
+                        {
+                            sliceHeight: 40,
+                            sheetDistance: 29,
+                            wireSpacing: 15,
+                            wireMargin: 15,
+                            sheetOpacity: 50,
+                            sheetColor: '1122aa',
+                            sheetSpecular: 5,
+                            wireColor: '000000',
+                            wireThickness: 1,
+                            nodeSize: 3
+                        },
+                        options === undefined ? {} : options);
                 this.skeletonLayout = new GlpkTwoDimensionalLayout(diagram);
+                this.skeletonLayout.edgeDist = this.options.sheetDistance;
+                this.skeletonLayout.sliceHeight = this.options.sliceHeight;
                 this.skeletonLayout.compute();
                 this.wiresLayout = new GlpkBimonoidalLayout(diagram);
+                this.wiresLayout.edgeDist = this.options.wireSpacing;
+                this.wiresLayout.margins = this.options.wireMargin;
                 this.wiresLayout.compute();
                 this.discretization = 20;
 
                 this.decoratedSurfacePainter = new DecoratedSurfacePainter();
                 this.flatTextPainter = new FlatTextPainter();
                 
-                this.sheetMaterial = new seen.Material(seen.Colors.hsl(0.6, 0.4, 0.4, 0.5));
-                this.sheetMaterial.specularExponent = 5;
-                this.sheetBoundaryMaterial = new seen.Material(seen.Colors.black());
+                let sheetColor = seen.Colors.hex(this.options.sheetColor);
+                sheetColor.a = this.options.sheetOpacity * 2.55 ;
+                this.sheetMaterial = new seen.Material(sheetColor);
+                this.sheetMaterial.specularExponent = this.options.sheetSpecular;
+                this.sheetBoundaryMaterial = new seen.Material(seen.Colors.hex(this.options.wireColor));
                 this.sheetMaterial.shader = seen.Shaders.Flat;
-                this.pathMaterial = new seen.Material(seen.Colors.hsl(0, 1, 0.5));
+                this.pathMaterial = new seen.Material(seen.Colors.hex(this.options.wireColor));
                 this.pathMaterial.shader = seen.Shaders.Flat;
-                this.pathStrokeWidth = 1;
+                this.pathStrokeWidth = this.options.wireThickness;
 
                 this.nodeLabelYDist = 8;
                 this.pathLabelYDist = 5;
@@ -160,7 +180,8 @@ export default class SheetLayout {
                                 if (nodeMetadata !== undefined) {
                                        let sphere = seen.Shapes.sphere(1);
                                        let vertex2d = this.skeletonLayout.vertices[i];
-                                       sphere.scale(3).translate(vertex2d.x, vertex2d.y, this.wiresLayout.getNodePosition(i, j));
+                                       sphere.scale(this.options.nodeSize)
+                                        .translate(vertex2d.x, vertex2d.y, this.wiresLayout.getNodePosition(i, j));
                                        sphere.fill(this.pathMaterial);
                                        model = model.add(sphere); 
 
