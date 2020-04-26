@@ -16,4 +16,44 @@ test('constraints start with the prefix', function() {
       }
 });
 
+test('simple vertical positions', function() {
+        let precision = 10;
+        let diag = new PlanarDiagram(4, [{offset: 0, inputs: 2, outputs: 2},
+                                         {offset: 2, inputs: 2, outputs: 2}]);
+        let layout = new GlpkTwoDimensionalLayout(diag);
 
+        layout.computeVerticalPositions();
+        
+        expect(layout.vertexHeight.get(-1)).toBeCloseTo(-40, precision);
+        expect(layout.vertexHeight.get(0)).toBeCloseTo(0, precision);
+        expect(layout.vertexHeight.get(1)).toBeCloseTo(0, precision);
+        expect(layout.vertexHeight.get(2)).toBeCloseTo(40, precision);
+});
+
+test('vertical position for nested cups', function() {
+        let precision = 10;
+        let diag = new PlanarDiagram(0, [{offset: 0, inputs: 0, outputs: 2},
+                                         {offset: 1, inputs: 0, outputs: 2}]);
+        let layout = new GlpkTwoDimensionalLayout(diag);
+
+        layout.computeVerticalPositions();
+        
+        expect(layout.vertexHeight.get(-1)).toBeCloseTo(-40, precision);
+        expect(layout.vertexHeight.get(0)).toBeCloseTo(0, precision);
+        expect(layout.vertexHeight.get(1)).toBeCloseTo(40, precision);
+        expect(layout.vertexHeight.get(2)).toBeCloseTo(80, precision);
+});
+
+test('vertical position for scalar and cup', function() {
+        let precision = 10;
+        let diag = new PlanarDiagram(2, [{offset: 1, inputs: 0, outputs: 0},
+                                         {offset: 0, inputs: 2, outputs: 0}]);
+        let layout = new GlpkTwoDimensionalLayout(diag);
+
+        layout.computeVerticalPositions();
+        
+        expect(layout.vertexHeight.get(-1)).toBeCloseTo(-40, precision);
+        expect(layout.vertexHeight.get(0)).toBeCloseTo(0, precision);
+        expect(layout.vertexHeight.get(1)).toBeCloseTo(40, precision);
+        expect(layout.vertexHeight.get(2)).toBeCloseTo(80, precision);
+});

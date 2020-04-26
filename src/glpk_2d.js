@@ -190,33 +190,76 @@ export default class GlpkTwoDimensionalLayout {
    }
  
    computeVerticalPositions() {
-       let vertexHeight = new Map();
-       vertexHeight.set(-1,-this.sliceHeight);
-       for(let i = 0; i < this.diag.nbEdges(); i++) {
-          let start = this.diag.startingVertex(i);
-          let end = this.diag.endingVertex(i);
-          
-          let startingHeight = vertexHeight.has(start) ? vertexHeight.get(start) : 0.0;
-          let endingHeight = vertexHeight.has(end) ? vertexHeight.get(end) : 0.0;
-          let length = this.edgeLength[i];
-          if (length === undefined) {
-             length = 0;
-          }
-          vertexHeight.set(end, Math.max(endingHeight, startingHeight + this.sliceHeight + length));
-       }
+        let vertexHeight = new Map();
+        let voidHeight = [];
+        for(let i = 0; i < this.diag.nbInputs+1; i++) {
+                voidHeight.push(-this.sliceHeight);
+        }
+        vertexHeight.set(-1,-this.sliceHeight);
+        for(let i = 0; i < this.diag.nbVertices(); i++) {
+                let slice = this.diag.slices[i];
+                let edgesAtLevel = this.diag.wiresAtLevel[i];
+                let height = 0;
+                let nextVoidHeight = [];
+                for(let j = 0; j < slice.offset+1; j++) {
+                        nextVoidHeight.push(voidHeight[j]);
+                }
+                for(let j = 0; j < slice.outputs-1; j++) {
+                        nextVoidHeight.push(0);
+                }
+                for(let j = slice.offset+slice.outputs; j < voidHeight.length + (slice.outputs-slice.inputs); j++) {
+                        if (j != slice.offset+slice.outputs || slice.outputs > 0) {
+                                nextVoidHeight.push(voidHeight[j + (slice.inputs - slice.outputs)]);
+                        }
+                }
 
-       // Ensure the end of the diagram is beyond all vertices, same for scalars
-       let lastHeight = -this.sliceHeight;
-       for(let i = 0; i < this.diag.nbVertices()+1; i++) {
-          let currentHeight = Math.max(lastHeight, vertexHeight.has(i) ? vertexHeight.get(i) : 0);
-          if (i === this.diag.nbVertices() || this.diag.getVertex(i).inputs === 0) {
-             currentHeight = Math.max(lastHeight+this.sliceHeight, vertexHeight.has(i) ? vertexHeight.get(i) : 0);
-             vertexHeight.set(i, currentHeight);
-          }
-          lastHeight = currentHeight;
-       }
-      this.vertexHeight = vertexHeight;
+                // Compute maximum height of all incoming edges
+                for(let j = slice.offset; j < slice.offset+slice.inputs; j++) {
+                        let edgeId = edgesAtLevel[j];
+                        let startingVertex = this.diag.startingVertex(edgeId);
+                        let startingHeight = vertexHeight.has(startingVertex) ? vertexHeight.get(startingVertex) : 0.0;
+                        let length = this.edgeLength[i];
+                        if (length === undefined) {
+                                length = 0;
+                        }
+                        height = Math.max(height, startingHeight + this.sliceHeight + length);
+                }
+                
+                // Compute maximum height of all blank space between edges
+                for(let j = slice.offset; j < slice.offset+slice.inputs-1; j++) {
+                        let vHeight = voidHeight[j+1];
+                        height = Math.max(height, vHeight + this.sliceHeight);
+                }
+                if (slice.inputs === 0) {
+                        let vHeight = voidHeight[slice.offset];
+                        height = Math.max(height, vHeight + this.sliceHeight);
+                }
+                
+                // Set vertex height
+                vertexHeight.set(i, height);
 
+                // Set void height
+                for(let j = slice.offset + 1; j < slice.offset + slice.outputs; j++) {
+                        nextVoidHeight[j] = height;
+                }
+                if (slice.outputs === 0) {
+                        nextVoidHeight[slice.offset] = height;
+                }
+                voidHeight = nextVoidHeight;
+        }
+        
+        // Compute height of diagram
+        let lastEdges = this.diag.wiresAtLevel[this.diag.nbVertices()];
+        let diagHeight = 0;
+        for(let i = 0; i < lastEdges.length; i++) {
+                let startingVertex = this.diag.startingVertex(lastEdges[i]);
+                diagHeight = Math.max(diagHeight, vertexHeight.has(startingVertex) ? vertexHeight.get(startingVertex) : 0.0);
+        }
+        for(let i = 0; i < voidHeight.length; i++) {
+                diagHeight = Math.max(diagHeight, voidHeight[i]);
+        }
+        vertexHeight.set(this.diag.nbVertices(), diagHeight + this.sliceHeight);
+        this.vertexHeight = vertexHeight;
    }
 
    computeLayout(prefix, solutions) {
