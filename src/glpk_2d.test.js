@@ -57,3 +57,31 @@ test('vertical position for scalar and cup', function() {
         expect(layout.vertexHeight.get(1)).toBeCloseTo(40, precision);
         expect(layout.vertexHeight.get(2)).toBeCloseTo(80, precision);
 });
+
+test('two scalars', function() {
+        let precision = 10;
+        let diag = new PlanarDiagram(0, [{offset: 0, inputs: 0, outputs: 0},
+                                         {offset: 0, inputs: 0, outputs: 0}]);
+        let layout = new GlpkTwoDimensionalLayout(diag);
+
+        layout.computeVerticalPositions();
+
+        expect(layout.vertexHeight.get(-1)).toBeCloseTo(-40, precision);
+        expect(layout.vertexHeight.get(0)).toBeCloseTo(0, precision);
+        expect(layout.vertexHeight.get(1)).toBeCloseTo(40, precision);
+        expect(layout.vertexHeight.get(2)).toBeCloseTo(80, precision);
+});
+
+test('node shoulders push void up', function() {
+        let precision = 10;
+        let diag = new PlanarDiagram(3, [{offset: 0, inputs: 3, outputs: 1},
+                                         {offset: 0, inputs: 0, outputs: 1}]);
+        let layout = new GlpkTwoDimensionalLayout(diag);
+
+        layout.computeVerticalPositions();
+
+        expect(layout.vertexHeight.get(-1)).toBeCloseTo(-40, precision);
+        expect(layout.vertexHeight.get(0)).toBeCloseTo(0, precision);
+        expect(layout.vertexHeight.get(1)).toBeCloseTo(40, precision);
+        expect(layout.vertexHeight.get(2)).toBeCloseTo(80, precision);
+});

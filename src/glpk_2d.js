@@ -245,6 +245,14 @@ export default class GlpkTwoDimensionalLayout {
                 if (slice.outputs === 0) {
                         nextVoidHeight[slice.offset] = height;
                 }
+
+                // If the slice has "shoulders" (more inputs than outputs)
+                // then we should also push the surrounding void up to avoid collision
+                // of slices with no inputs
+                if (slice.outputs > 0 && slice.outputs < slice.inputs) {
+                        nextVoidHeight[slice.offset] = height;
+                        nextVoidHeight[slice.offset+slice.outputs] = height;
+                }
                 voidHeight = nextVoidHeight;
         }
         
