@@ -107,6 +107,36 @@ export default class GlpkBimonoidalLayout {
                         name: varName,
                         coef: 1.0
                 });
+
+                // Ensure the node is positioned after the previous one
+                if (j == 0) {
+                        constraints.push({
+                                name: `node${i}_${j}_left`,
+                                vars: [
+                                        { name: varName, coef: 1.0 }
+                                ],
+                                bnds: { type: Glpk.GLP_LO, ub: 0.0, lb: this.margins }
+                        });
+                } else {
+                        constraints.push({
+                                name: `node${i}_${j}_left`,
+                                vars: [
+                                        { name: varName, coef: 1.0 },
+                                        { name: `w${i}_${j-1}`, coef: -1.0 }
+                                ],
+                                bnds: { type: Glpk.GLP_LO, ub: 0.0, lb: this.edgeDist }
+                        });
+                }
+                if (j == this.diag.nbNodesOnVertex(i) - 1) {
+                         constraints.push({
+                                name: `node${i}_${j}_right`,
+                                vars: [
+                                        { name: 'rb', coef: 1.0 },
+                                        { name: varName, coef: -1.0 }
+                                ],
+                                bnds: { type: Glpk.GLP_LO, ub: 0.0, lb: this.margins }
+                        });
+               }
                 
                 let incomingPaths = this.diag.getIncomingPaths(i, j);
                 if (strictMode) {
