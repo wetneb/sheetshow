@@ -109,6 +109,8 @@ var updateSVGLinkTimeout = null;
 
 function updateSVGLink() {
         let svgText = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>'+document.getElementById('seen-canvas').outerHTML;
+        // enable this to choose a new default camera position
+        // console.log(JSON.stringify(modelGroup.m.m));
         document.getElementById('svg-export').setAttribute('href', 'data:image/svg+xml;charset=utf-16;base64,'+Base64.encode(svgText));
 }
 
@@ -124,6 +126,7 @@ function scheduleSVGLinkUpdate() {
 
 var modelGroup = null;
 var seenContext = null;
+var defaultTransform = new seen.Matrix([0.9075902877572519,-0.004615691762365655,-0.4198315911865854,0,-0.020624608660257716,0.9982422542370762,-0.055561023868269416,0,0.4193500865462133,0.059085507912126904,0.9058997779381817,0,0,0,0,1]);
 
 function renderDiagram(diag, theme) {
         let layout = new SheetLayout(diag, theme);
@@ -153,6 +156,7 @@ export function setUp(initialDiagram) {
         let viewport = seen.Viewports.center(400, 400);
         let scene = new seen.Scene({model: seen.Models.default(), viewport: viewport, fractionalPoints: true});
         modelGroup = scene.model.append().scale(1);
+        modelGroup.transform(defaultTransform);
         seenContext = seen.Context('seen-canvas', scene);
         let canvasElem = document.getElementById('seen-canvas');
         canvasElem.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
@@ -169,6 +173,8 @@ export function setUp(initialDiagram) {
 
         let shareURLButton = document.getElementById('share-url');
         shareURLButton.onclick = showShareURL;
+        let resetCameraButton = document.getElementById('reset-camera');
+        resetCameraButton.onclick = resetCamera;
 
         // restore library from local storage
         let restored = window.localStorage.getItem('diagram-library');
@@ -189,4 +195,13 @@ function showShareURL(e) {
         e.preventDefault();
 }
 
+/** Reset camera button */
+
+function resetCamera(e) {
+        modelGroup.reset();
+        modelGroup.transform(defaultTransform);
+        seenContext.render();
+        scheduleSVGLinkUpdate();
+        e.preventDefault();
+}
 
