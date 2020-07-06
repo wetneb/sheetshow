@@ -1,11 +1,11 @@
 .. _page-json_format:
 
-.. highlight:: JSON
+.. highlight:: YAML
 
-JSON format
+YAML format
 ===========
 
-We explain here the JSON format used to represent the morphisms.
+We explain here the YAML format used to represent the morphisms.
 The first step to understand the format is to explain the data
 structure we use to represent `monoidal string diagrams <https://en.wikipedia.org/wiki/String_diagram>`_.
 These are  simpler than bimonoidal diagrams as they can be drawn in the plane.
@@ -33,14 +33,18 @@ One can therefore encode the diagram as follows:
 
 Therefore, one can encode the sample diagram above as follows, assuming that inputs are at the top::
 
-   {
-     "inputs": 1,
-     "slices": [
-       { "offset": 0, "inputs": 1, "outputs": 2 },
-       { "offset": 1, "inputs": 1, "outputs": 2 },
-       { "offset": 0, "inputs": 2, "outputs": 1 }
-     ]
-   }
+   inputs: 1
+   slices:
+   - offset: 0
+     inputs: 1
+     outputs: 2
+   - offset: 1
+     inputs: 1
+     outputs: 2
+   - offset: 0
+     inputs: 2
+     outputs: 1
+
 
 Each slice can be augmented to store details about the morphism in that slice (such as a label, for instance).
 This data structure is well suited to reason about string diagrams and there are efficient algorithms to determine
@@ -57,29 +61,28 @@ To obtain a language for symmetric monoidal categories, we do not need to add mu
 We can simply allow a particular type of slice which represent a swap of two adjacent wires.
 To simplify the format, instead of writing the swap fully as::
 
-   {
-      "offset": 3,
-      "inputs": 2,
-      "outputs": 2
-   }
+   offset: 3
+   inputs: 2
+   outputs: 2
 
 We introduce a shorter notation, which at the same time encodes the particular role of the symmetry::
 
-   {
-      "swap": 3
-   }
+   swap: 3
 
 It now becomes possible to encode symmetric monoidal diagrams::
 
-   {
-     "inputs": 1,
-     "slices": [
-       { "offset": 0, "inputs": 1, "outputs": 2 },
-       { "offset": 1, "inputs": 1, "outputs": 2 },
-       { "swap": 1 },
-       { "offset": 0, "inputs": 2, "outputs": 1 }
-     ]
-   }
+   inputs: 1
+   slices:
+   - offset: 0
+     inputs: 1
+     outputs: 2
+   - offset: 1
+     inputs: 1
+     outputs: 2
+   - swap: 1
+   - offset: 0
+     inputs: 2
+     outputs: 1
 
 Which can be rendered as:
 
@@ -115,34 +118,67 @@ We describe them with the following data:
 * For each input sheet, the number of wires connected to the node;
 * For each output sheet, the number of wires connected to the node.
 
-Which is encoded in JSON as::
+Which is encoded in YAML as::
 
-    {
-        "inputs": [ 1, 2, 2 ],
-        "slices": [
-            {
-                "offset": 1,
-                "inputs": 1,
-                "outputs": 2,
-                "nodes": [
-                    {
-                        "offset": 0,
-                        "inputs": [ 1 ],
-                        "outputs": [ 1, 1 ]
-                    }
-                ]
-            },
-            {
-                "offset": 2,
-                "inputs": 2,
-                "outputs": 2,
-                "nodes": [
-                    {
-                        "offset": 0,
-                        "inputs": [ 2, 2 ],
-                        "outputs": [ 1, 1 ]
-                    }
-                ]
-            }
-        ]
-    }
+   inputs:
+   - 1
+   - 2
+   - 2
+   slices:
+   - offset: 1
+     inputs: 1
+     outputs: 2
+     nodes:
+     - offset: 0
+       inputs:
+       - 1
+         outputs:
+       - 1
+       - 1
+     - offset: 2
+       inputs: 2
+       outputs: 2
+       nodes:
+       - offset: 0
+         inputs:
+         - 2
+         - 2
+         outputs:
+         - 1
+         - 1
+
+
+Typing and labeling
+-------------------
+
+Rendering the geometry of a diagram is not enough: we also want to be able to annotate
+its nodes and and edges with morphisms and objects.
+
+At the moment only input wires can be labeled by objects: it is done by replacing the number
+of wires on an input sheet by the list of types, as follows::
+
+    inputs:
+    - [A]
+    - [B,C]
+    - [D,E]
+
+or equivalently::
+
+    inputs:
+    - - A
+    - - B
+      - C
+    - - D
+      - E
+
+Each node can be labeled by adding a `label` key in it::
+
+    offset: 0
+        inputs:
+          - 2
+          - 2
+        outputs:
+          - 1
+          - 1
+        label: g
+

@@ -1,7 +1,7 @@
 .. toctree::
    :maxdepth: 1
 
-   json_format
+   yaml_format
    latex
    rendering
    building

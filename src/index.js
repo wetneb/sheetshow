@@ -4,7 +4,7 @@ import DiagramLibrary from './library.js';
 import { Base64 } from 'js-base64';
 import seen from 'seen';
 import Vue from 'vue';
-import { prettyPrintJSON } from './util.js';
+import yaml from 'js-yaml';
 
 // global state
 var currentDiagram = null;
@@ -45,7 +45,7 @@ let vueLibrary = new Vue({
 		},
 		loadDiag: function(e, name) {
 			this.currentDiagram = this.library.getDiagram(name);
-			this.jsonText = prettyPrintJSON(this.currentDiagram.serialize()); 
+			this.jsonText = yaml.safeDump(this.currentDiagram.serialize()); 
 			this.currentName = name;
 		},
                 saveTheme: function(e) {
@@ -59,7 +59,7 @@ let vueLibrary = new Vue({
 	computed: {
 		parsedDiagram: function() {
 			try {
-				let parsed = JSON.parse(this.jsonText);
+				let parsed = yaml.safeLoad(this.jsonText);
 				return {diagram: SheetDiagram.deserialize(parsed)};
 			} catch(e) {
 				return {error: e.message};
@@ -151,7 +151,7 @@ export function setUp(initialDiagram) {
             }
         }
 
-	vueLibrary.jsonText = prettyPrintJSON(diag.serialize());
+	vueLibrary.jsonText = yaml.safeDump(diag.serialize());
 
         let viewport = seen.Viewports.center(400, 400);
         let scene = new seen.Scene({model: seen.Models.default(), viewport: viewport, fractionalPoints: true});

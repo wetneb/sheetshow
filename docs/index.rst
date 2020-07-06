@@ -11,7 +11,7 @@ Morphisms are defined in a JSON format which is translated by the renderer as ve
    :maxdepth: 2
    :caption: Contents:
 
-   json_format
+   yaml_format
    latex
    rendering
    building
