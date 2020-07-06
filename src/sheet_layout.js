@@ -206,6 +206,24 @@ export default class SheetLayout {
                                 }
                         }
                 }
+
+                // add labels on codomains 
+                let codomainSheets = this.diagram.edgesAtLevel(this.diagram.nbVertices());
+                for(let i = 0; i < codomainSheets.length; i++) {
+
+                        let k = codomainSheets[i];
+                        let edgeBezier = this.skeletonLayout.edges[k]; 
+                        let discretization = SheetLayout._discretizePath(edgeBezier, this.discretization);
+                        let basePoint = discretization[discretization.length-1];
+                        for(let j = 0; j < this.diagram.getPathsOnEdge(k).length; j++) {
+                                let label = this.diagram.getCodomainLabel(i, j);
+                                let pathPosition = this.wiresLayout.getPathPosition(k, j);
+                                if (label !== undefined) {
+                                        model = model.add(this._createTextNode(label, basePoint.x, basePoint.y + this.pathLabelYDist, pathPosition));
+                                }
+                        }
+                }
+ 
                 
                 model.translate(-this.skeletonLayout.width/2, -this.skeletonLayout.height/2,-this.wiresLayout.getSheetWidth()/2)
                         .scale(2);

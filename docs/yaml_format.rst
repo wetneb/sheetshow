@@ -154,8 +154,8 @@ Typing and labeling
 Rendering the geometry of a diagram is not enough: we also want to be able to annotate
 its nodes and and edges with morphisms and objects.
 
-At the moment only input wires can be labeled by objects: it is done by replacing the number
-of wires on an input sheet by the list of types, as follows::
+At the moment only wires on the diagram boundary can be labeled by objects. For inputs,
+it is done by replacing the number of wires on an input sheet by the list of types, as follows::
 
     inputs:
     - [A]
@@ -170,6 +170,14 @@ or equivalently::
       - C
     - - D
       - E
+
+The same syntaxes can be used for outputs::
+
+    outputs:
+    - []
+    - [X,Y,Z]
+    - [F,F]
+
 
 Each node can be labeled by adding a `label` key in it::
 

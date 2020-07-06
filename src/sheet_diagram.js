@@ -18,9 +18,10 @@ export default class SheetDiagram extends PlanarDiagram {
     *   output sheets it is connected to, with an offset, and a list
     *   of nodes on the seam with their similar specification.
     */
-   constructor(inputSheets, slices) {
+   constructor(inputSheets, slices, outputSheets) {
         super(inputSheets.length, slices);
         this.inputSheets = inputSheets;
+        this.outputSheets = outputSheets !== undefined ? outputSheets : [];
         this.pathToNode = [];
         // map from [vertex id, node it] to the list of [edge id, path id] linked to it from above
         this.incomingPaths = new Map();
@@ -200,14 +201,18 @@ export default class SheetDiagram extends PlanarDiagram {
           }
           return slice;
        };
-       return {
+       let result = {
           inputs: this.inputSheets,
           slices: this.slices.map(serializeSlice)
         };
+        if (this.outputSheets.length > 0) {
+            result.outputs = this.outputSheets;
+        }
+        return result;
    }
 
    static deserialize(jsonObject) {
-        return new SheetDiagram(jsonObject.inputs, jsonObject.slices);
+        return new SheetDiagram(jsonObject.inputs, jsonObject.slices, jsonObject.outputs);
    }
 
    /**
@@ -235,7 +240,7 @@ export default class SheetDiagram extends PlanarDiagram {
    }
 
    /**
-    * The label of the path on the given sheet.
+    * The label of the path on the given input sheet.
     */
    getDomainLabel(sheetId, pathId) {
         let sheet = this.inputSheets[sheetId];
@@ -244,6 +249,18 @@ export default class SheetDiagram extends PlanarDiagram {
         }
         return undefined;
    }
+
+   /**
+    * The label of the path on the given input sheet.
+    */
+   getCodomainLabel(sheetId, pathId) {
+        let sheet = this.outputSheets[sheetId];
+        if (typeof sheet === 'object') {
+                return sheet[pathId];
+        }
+        return undefined;
+   }
+
 
    _addIncomingPath(vertexId, nodeId, edgeId, pathId) {
         let current = this.incomingPaths.get(`${vertexId}_${nodeId}`);

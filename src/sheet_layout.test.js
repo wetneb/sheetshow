@@ -28,7 +28,7 @@ test('simple diagram', function() {
                    }
                 ]
               }];
-      let diag = new SheetDiagram([ 1, ["A","B"], 2], slices);
+      let diag = new SheetDiagram([ 1, ["A","B"], 2], slices, [ ["A"], ["X", "Y"], 2, 2]);
       let layout = new SheetLayout(diag);
       layout.getModel();
 });

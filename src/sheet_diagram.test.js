@@ -356,7 +356,7 @@ test('diagram annotations', function() {
                    }
                 ]
               }];
-      let diag = new SheetDiagram([ ["A"], ["B","C"], 2], slices);
+      let diag = new SheetDiagram([ ["A"], ["B","C"], 2], slices, [ ["A"], ["X", "Y"], 1, 1]);
 
       expect(diag.getNode(0,0)).toEqual({ offset: 0, inputs: [1], outputs: [1,1], label: "$f$"});
       expect(diag.getNode(0,1)).toEqual(undefined);
@@ -366,6 +366,12 @@ test('diagram annotations', function() {
       expect(diag.getDomainLabel(1, 1)).toEqual("C");
       expect(diag.getDomainLabel(2, 0)).toEqual(undefined);
       expect(diag.getDomainLabel(2, 1)).toEqual(undefined);
+      expect(diag.getCodomainLabel(0,0)).toEqual("A");
+      expect(diag.getCodomainLabel(1,0)).toEqual("X");
+      expect(diag.getCodomainLabel(1,1)).toEqual("Y");
+      expect(diag.getCodomainLabel(1,2)).toEqual(undefined);
+      expect(diag.getCodomainLabel(2,0)).toEqual(undefined);
+      expect(diag.serialize().outputs[1][0]).toEqual("X");
 });
 
 
