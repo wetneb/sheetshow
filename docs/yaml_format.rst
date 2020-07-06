@@ -174,11 +174,11 @@ or equivalently::
 Each node can be labeled by adding a `label` key in it::
 
     offset: 0
-        inputs:
-          - 2
-          - 2
-        outputs:
-          - 1
-          - 1
-        label: g
+    inputs:
+      - 2
+      - 2
+    outputs:
+      - 1
+      - 1
+    label: g
 
