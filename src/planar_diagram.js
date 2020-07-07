@@ -135,6 +135,11 @@ export default class PlanarDiagram {
         return this.edgeEnds.length;
     }
 
+    // is this vertex a swap?
+    isSwap(vertexId) {
+        return this.slices[vertexId].swap !== undefined;
+    }
+
     // Ids of the edges crossing a given level
     edgesAtLevel(height) {
        return this.wiresAtLevel[height];

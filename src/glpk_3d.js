@@ -23,6 +23,23 @@ export default class GlpkBimonoidalLayout {
             solutions = Glpk.solve(program);
         }
         this.solutions = solutions.result.vars;
+
+        // post process the node positions for swaps, to make sure unrelated wires
+        // do not end up at the same place
+        let minDist = 3;
+        for (let i = 0; i < this.diag.nbVertices(); i++) {
+            if (this.diag.isSwap(i)) {
+                let nbNodes = this.diag.nbNodesOnVertex(i);
+                for (let j = 0; j < nbNodes; j++) {
+                    for (let k = j+1; k < nbNodes; k++) {
+                        if (this.solutions[`node${i}_${k}`] - this.solutions[`node${i}_${j}`] < minDist) {
+                            this.solutions[`node${i}_${k}`] += minDist/2;
+                            this.solutions[`node${i}_${j}`] -= minDist/2;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     getNodePosition(vertexId, nodeId) {
@@ -109,34 +126,37 @@ export default class GlpkBimonoidalLayout {
                 });
 
                 // Ensure the node is positioned after the previous one
-                if (j == 0) {
-                        constraints.push({
-                                name: `node${i}_${j}_left`,
-                                vars: [
-                                        { name: varName, coef: 1.0 }
-                                ],
-                                bnds: { type: Glpk.GLP_LO, ub: 0.0, lb: this.margins }
-                        });
-                } else {
-                        constraints.push({
-                                name: `node${i}_${j}_left`,
-                                vars: [
-                                        { name: varName, coef: 1.0 },
-                                        { name: `w${i}_${j-1}`, coef: -1.0 }
-                                ],
-                                bnds: { type: Glpk.GLP_LO, ub: 0.0, lb: this.edgeDist }
-                        });
+                // but only if the node is not a swap, in which case we do not care
+                if (! this.diag.isSwap(i)) {
+                    if (j == 0) {
+                            constraints.push({
+                                    name: `node${i}_${j}_left`,
+                                    vars: [
+                                            { name: varName, coef: 1.0 }
+                                    ],
+                                    bnds: { type: Glpk.GLP_LO, ub: 0.0, lb: this.margins }
+                            });
+                    } else {
+                            constraints.push({
+                                    name: `node${i}_${j}_left`,
+                                    vars: [
+                                            { name: varName, coef: 1.0 },
+                                            { name: `w${i}_${j-1}`, coef: -1.0 }
+                                    ],
+                                    bnds: { type: Glpk.GLP_LO, ub: 0.0, lb: this.edgeDist }
+                            });
+                    }
+                    if (j == this.diag.nbNodesOnVertex(i) - 1) {
+                            constraints.push({
+                                    name: `node${i}_${j}_right`,
+                                    vars: [
+                                            { name: 'rb', coef: 1.0 },
+                                            { name: varName, coef: -1.0 }
+                                    ],
+                                    bnds: { type: Glpk.GLP_LO, ub: 0.0, lb: this.margins }
+                            });
+                    }
                 }
-                if (j == this.diag.nbNodesOnVertex(i) - 1) {
-                         constraints.push({
-                                name: `node${i}_${j}_right`,
-                                vars: [
-                                        { name: 'rb', coef: 1.0 },
-                                        { name: varName, coef: -1.0 }
-                                ],
-                                bnds: { type: Glpk.GLP_LO, ub: 0.0, lb: this.margins }
-                        });
-               }
                 
                 let incomingPaths = this.diag.getIncomingPaths(i, j);
                 if (strictMode) {

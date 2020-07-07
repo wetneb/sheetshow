@@ -73,6 +73,7 @@ test('swaps', function() {
       expect(diag.nbEdgesAtLevel(1)).toEqual(3);
       expect(diag.nbEdgesAtLevel(2)).toEqual(3);
       expect(diag.nbVertices()).toEqual(3);
+      expect(diag.isSwap(0)).toEqual(true);
       expect(diag.startingVertex(0)).toEqual(-1);
       expect(diag.startingVertex(1)).toEqual(-1);
       expect(diag.startingVertex(2)).toEqual(-1);

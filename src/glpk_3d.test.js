@@ -230,3 +230,15 @@ test('fall back to non-strict mode', function() {
       solutions = Glpk.solve(constraints);
       expect(solutions.result.status).toEqual(5);
 });
+
+test('space out wires on swaps', function() {
+      let slices = [{ swap: 0 }];
+      let diag = new SheetDiagram([ 2, 2], slices);
+      let layout = new GlpkBimonoidalLayout(diag);
+      layout.compute();
+
+      expect(layout.getNodePosition(0, 0)).toBeCloseTo(13.4, 0);
+      expect(layout.getNodePosition(0, 2)).toBeCloseTo(17.9, 0);
+      expect(layout.getNodePosition(0, 1)).toBeCloseTo(26.9, 0);
+      expect(layout.getNodePosition(0, 3)).toBeCloseTo(31.4, 0);
+});
