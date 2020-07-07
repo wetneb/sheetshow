@@ -126,7 +126,7 @@ function scheduleSVGLinkUpdate() {
 
 var modelGroup = null;
 var seenContext = null;
-var defaultTransform = new seen.Matrix([0.9075902877572519,-0.004615691762365655,-0.4198315911865854,0,-0.020624608660257716,0.9982422542370762,-0.055561023868269416,0,0.4193500865462133,0.059085507912126904,0.9058997779381817,0,0,0,0,1]);
+var defaultTransform = new seen.Matrix([0.840116964296004,-0.008402378812549188,0.5423401942806322,0,-0.013753536720410912,0.9992285210387111,0.03678590722640127,0,0.5422308793583629,0.038363560484912226,-0.8393532693074919,0,0,0,0,1]);
 
 function renderDiagram(diag, theme) {
         let layout = new SheetLayout(diag, theme);
@@ -155,7 +155,7 @@ export function setUp(initialDiagram) {
 
         let viewport = seen.Viewports.center(400, 400);
         let scene = new seen.Scene({model: seen.Models.default(), viewport: viewport, fractionalPoints: true});
-        modelGroup = scene.model.append().scale(1);
+        modelGroup = scene.model.append();
         modelGroup.transform(defaultTransform);
         seenContext = seen.Context('seen-canvas', scene);
         let canvasElem = document.getElementById('seen-canvas');
