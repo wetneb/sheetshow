@@ -374,4 +374,23 @@ test('diagram annotations', function() {
       expect(diag.serialize().outputs[1][0]).toEqual("X");
 });
 
+test('serialize node swap', function() {
+    let diag = {
+        "inputs": [ 2 ],
+        "slices": [
+            {
+                "offset": 0,
+                "inputs": 1,
+                "outputs": 1,
+                "nodes": [
+                    {
+                        "swap": 0
+                    }
+                ]
+            }
+    ]};
+    let deserialized = SheetDiagram.deserialize(diag);
+    expect(deserialized.getNode(0,0)).toEqual({ offset: 0, inputs: [2], outputs: [2], swap: 0 });
+    expect(deserialized.serialize()).toEqual(diag);
+});
 

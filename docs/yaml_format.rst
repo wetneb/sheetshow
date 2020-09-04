@@ -148,6 +148,23 @@ Which is encoded in YAML as::
          - 1
 
 
+Symmetry for the multiplicative structure
+-----------------------------------------
+
+Symmetry is also supported for the multiplicative (although it is not required in bimonoidal
+categories in general). It can be used as a special node (for which you will need to introduce a seam)::
+
+   inputs:
+   - 2
+   slices:
+   - offset: 0
+     inputs: 1
+     outputs: 1
+     nodes:
+     - swap: 0
+
+As for the additive symmetry, the value of the `swap` attribute is the offset of the corresponding node.
+
 Typing and labeling
 -------------------
 

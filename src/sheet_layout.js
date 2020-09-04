@@ -177,7 +177,7 @@ export default class SheetLayout {
                 for(let i = 0; i < this.diagram.nbVertices(); i++) {
                         for(let j = 0; j < this.diagram.nbNodesOnVertex(i); j++) {
                                 let nodeMetadata = this.diagram.getNode(i, j);
-                                if (nodeMetadata !== undefined) {
+                                if (nodeMetadata !== undefined && nodeMetadata.swap === undefined) {
                                        let sphere = seen.Shapes.sphere(1);
                                        let vertex2d = this.skeletonLayout.vertices[i];
                                        sphere.scale(this.options.nodeSize)

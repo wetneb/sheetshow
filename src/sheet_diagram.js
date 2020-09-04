@@ -195,12 +195,26 @@ export default class SheetDiagram extends PlanarDiagram {
    } 
 
    serialize() {
+
+       let serializeNode = function(node) {
+          if (node.swap !== undefined) {
+             return {swap: node.swap};
+          }
+          return node;
+       };
+
        let serializeSlice = function(slice) {
           if (slice.swap !== undefined) {
              return {swap: slice.swap};
           }
-          return slice;
+          return {
+             offset: slice.offset,
+             inputs: slice.inputs,
+             outputs: slice.outputs,
+             nodes: slice.nodes.map(serializeNode)
+          };
        };
+
        let result = {
           inputs: this.inputSheets,
           slices: this.slices.map(serializeSlice)
@@ -212,7 +226,29 @@ export default class SheetDiagram extends PlanarDiagram {
    }
 
    static deserialize(jsonObject) {
-        return new SheetDiagram(jsonObject.inputs, jsonObject.slices, jsonObject.outputs);
+        let deserializeNode = function(node) {
+            if (node.swap !== undefined) {
+                return {
+                    swap: node.swap,
+                    inputs: [2],
+                    outputs: [2],
+                    offset: node.swap
+                };
+            }
+            return node;
+        };
+        let deserializeSlice = function(slice) {
+           let deserialized = Object.assign({}, slice);
+           if (slice.nodes !== undefined) {
+               deserialized.nodes = slice.nodes.map(deserializeNode);
+           }
+           return deserialized;
+        };
+        let slices = [];
+        if (jsonObject.slices !== undefined) {
+            slices = jsonObject.slices.map(deserializeSlice);
+        }
+        return new SheetDiagram(jsonObject.inputs, slices, jsonObject.outputs);
    }
 
    /**
