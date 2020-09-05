@@ -13,6 +13,7 @@ Morphisms are defined in a YAML format which is translated by the renderer as ve
 
    yaml_format
    latex
+   web
    rendering
    building
    testing

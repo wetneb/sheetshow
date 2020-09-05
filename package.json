@@ -14,6 +14,7 @@
   "scripts": {
     "test": "jest",
     "build": "webpack",
+    "embed": "webpack --config webpack.embed.js",
     "watch": "webpack --watch",
     "start": "webpack-dev-server --open",
     "predeploy": "npm run build",

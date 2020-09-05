@@ -3,6 +3,7 @@
 
    yaml_format
    latex
+   web
    rendering
    building
    testing

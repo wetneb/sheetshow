@@ -26,3 +26,11 @@ To publish the app to GitHub Pages, use::
 
 This will compile the app and upload it to the `gh-pages` branch.
 
+Compiling the embeddable script
+-------------------------------
+
+To compile the embeddable script used to render diagrams in third-party web pages, run::
+
+   npm run embed
+
+This will generate the script at `dist/embed/sheetshow.js`.
