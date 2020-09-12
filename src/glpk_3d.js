@@ -75,6 +75,13 @@ export default class GlpkBimonoidalLayout {
               { name: 'lb', coef: 1.0 },
            ],
            bnds: { type: Glpk.GLP_FX, ub: 0.0, lb: 0.0 }
+        },
+        {
+           name: 'rb',
+           vars: [
+              { name: 'rb', coef: 1.0 },
+           ],
+           bnds: { type: Glpk.GLP_LO, ub: 0.0, lb: this.margins }
         }];
 
         // For each sheet
