@@ -99,6 +99,36 @@ test('tensor product', function() {
      expect(diag.nbNodesOnVertex(0)).toEqual(4);
 });
 
+test('disconnected sheets', function() {
+        let slices = [{
+          offset: 0,
+          inputs: 1,
+          outputs: 0,
+          nodes: [
+             { offset: 0,
+               inputs: [ 1 ],
+               outputs: [],
+               label: "g"
+             }
+          ]
+        },
+        {
+           offset: 0,
+           inputs: 0,
+           outputs: 1,
+           nodes: [
+                { offset: 0,
+                  inputs: [],
+                  outputs: [1],
+                  label: "f" }
+        ]}];
+        
+        let diag = new SheetDiagram([1], slices);
+        
+        expect(diag.nbNodesOnVertex(0)).toEqual(1);
+        expect(diag.nbNodesOnVertex(1)).toEqual(1);
+});
+
 test('hadamard', function() {
      let slices = [{
         offset: 0,

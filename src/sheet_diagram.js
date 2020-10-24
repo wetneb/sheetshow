@@ -138,6 +138,13 @@ export default class SheetDiagram extends PlanarDiagram {
                         this._addIncomingPath(i, nodeId, currentEdges[slice.offset + m], k);
                     }
                 }
+                if (nbWhiskeringNodes === -1) {
+                    // happens when there are no input sheets: in this case we assume
+                    // that there are no whiskering nodes.
+                    // This means that users should add them explicitly for now,
+                    // until we find a syntax for them!
+                    nbWhiskeringNodes = 0;
+                }
                 for(let m = 0; m < slice.outputs; m++) {
                     let paths = this.pathToNode[outputEdgeIds[m]];
                     for(let k = 0; k < nbWhiskeringNodes; k++) {
