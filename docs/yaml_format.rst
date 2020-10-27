@@ -135,17 +135,17 @@ Which is encoded in YAML as::
        outputs:
        - 1
        - 1
-     - offset: 2
-       inputs: 2
-       outputs: 2
-       nodes:
-       - offset: 0
-         inputs:
-         - 2
-         - 2
-         outputs:
-         - 1
-         - 1
+   - offset: 2
+     inputs: 2
+     outputs: 2
+     nodes:
+     - offset: 0
+       inputs:
+       - 2
+       - 2
+       outputs:
+       - 1
+       - 1
 
 
 Symmetry for the multiplicative structure
