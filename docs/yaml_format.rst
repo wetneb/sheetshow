@@ -132,7 +132,7 @@ Which is encoded in YAML as::
      - offset: 0
        inputs:
        - 1
-         outputs:
+       outputs:
        - 1
        - 1
      - offset: 2
