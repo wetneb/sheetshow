@@ -31,16 +31,16 @@ One can therefore encode the diagram as follows:
  + The number of input wires consumed by the node;
  + The number of output wires produced by the node (or again, their list of types).
 
-Therefore, one can encode the sample diagram above as follows, assuming that inputs are at the top::
+Therefore, one can encode the sample diagram above as follows, assuming that inputs are at the bottom::
 
-   inputs: 1
+   inputs: 2
    slices:
    - offset: 0
      inputs: 1
      outputs: 2
    - offset: 1
-     inputs: 1
-     outputs: 2
+     inputs: 2
+     outputs: 1
    - offset: 0
      inputs: 2
      outputs: 1
@@ -71,15 +71,15 @@ We introduce a shorter notation, which at the same time encodes the particular r
 
 It now becomes possible to encode symmetric monoidal diagrams::
 
-   inputs: 1
+   inputs: 2
    slices:
    - offset: 0
      inputs: 1
      outputs: 2
-   - offset: 1
-     inputs: 1
-     outputs: 2
    - swap: 1
+   - offset: 1
+     inputs: 2
+     outputs: 1
    - offset: 0
      inputs: 2
      outputs: 1
@@ -101,7 +101,7 @@ Therefore our data structure for bimonoidal diagrams is based on that for monoid
 
 A bimonoidal diagram is described by:
 
-* The number of input sheets, and the number of input wires on each of these input sheets (in the example above: `[1, 2, 2]` at the top);
+* The number of input sheets, and the number of input wires on each of these input sheets (in the example above: `[1, 2, 2]` at the bottom);
 * The slices of the bimonoidal diagram, which are seams between sheets. They are each described by:
 
   + The number of sheets passing to the left of the seam. We call this, again, the *offset*;
@@ -147,6 +147,9 @@ Which is encoded in YAML as::
        - 1
        - 1
 
+`View in SheetShow
+<https://wetneb.github.io/sheetshow/#eyJpbnB1dHMiOlsxLDIsMl0sInNsaWNlcyI6W3sib2Zmc2V0IjoxLCJpbnB1dHMiOjEsIm91dHB1dHMiOjIsIm5vZGVzIjpbeyJvZmZzZXQiOjAsImlucHV0cyI6WzFdLCJvdXRwdXRzIjpbMSwxXX1dfSx7Im9mZnNldCI6MiwiaW5wdXRzIjoyLCJvdXRwdXRzIjoyLCJub2RlcyI6W3sib2Zmc2V0IjowLCJpbnB1dHMiOlsyLDJdLCJvdXRwdXRzIjpbMSwxXX1dfV19>`_.
+
 
 Symmetry for the multiplicative structure
 -----------------------------------------
@@ -162,6 +165,8 @@ categories in general). It can be used as a special node (for which you will nee
      outputs: 1
      nodes:
      - swap: 0
+
+`View in SheetShow <https://wetneb.github.io/sheetshow/#eyJpbnB1dHMiOlsyXSwic2xpY2VzIjpbeyJvZmZzZXQiOjAsImlucHV0cyI6MSwib3V0cHV0cyI6MSwibm9kZXMiOlt7InN3YXAiOjB9XX1dfQ==>`_.
 
 As for the additive symmetry, the value of the `swap` attribute is the offset of the corresponding node.
 
