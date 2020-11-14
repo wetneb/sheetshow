@@ -52,7 +52,7 @@ export default class SheetLayout {
 
                 this.nodeLabelYDist = 8;
                 this.pathLabelYDist = 5;
-                this.nodeLabelZDist = 0;
+                this.nodeLabelZDist = -7;
         }
 
         // Returns a model for the given edge
@@ -186,8 +186,9 @@ export default class SheetLayout {
                                        model = model.add(sphere); 
 
                                        if (nodeMetadata.label !== undefined) {
+                                                let labelPosition = this._labelPosition(i, j);
                                                 model = model.add(this._createTextNode(nodeMetadata.label,
-                                                        vertex2d.x, vertex2d.y + this.nodeLabelYDist, this.wiresLayout.getNodePosition(i,j) + this.nodeLabelZDist));
+                                                        labelPosition.x, labelPosition.y, labelPosition.z));
                                        }
                                 }
                         }
@@ -228,6 +229,23 @@ export default class SheetLayout {
                 model.translate(-this.skeletonLayout.width/2, -this.skeletonLayout.height/2,-this.wiresLayout.getSheetWidth()/2)
                         .scale(2);
                 return model;
+        }
+
+        _labelPosition(i, j) {
+                let vertex2d = this.skeletonLayout.vertices[i];
+                let vertex = this.diagram.getVertex(i);
+                let zPos = this.wiresLayout.getNodePosition(i, j);
+                let yOffset = vertex.outputs % 2 == 0 ? this.nodeLabelYDist : -this.nodeLabelYDist;
+                let zOffset = 0;
+                if (vertex.outputs % 2 == 1 && vertex.inputs % 2 == 1) {
+                        yOffset = 0;
+                        zOffset = this.nodeLabelZDist;
+                }
+                return {
+                        x: vertex2d.x,
+                        y: vertex2d.y + yOffset,
+                        z: zPos + zOffset
+                };
         }
 
         _createTextNode(textContent, x, y, z) {

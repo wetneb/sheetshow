@@ -2,35 +2,38 @@ import SheetLayout from './sheet_layout.js';
 import SheetDiagram from './sheet_diagram.js';
 
 test('simple diagram', function() {
-       let slices = [{
+        let slices = [{
                 offset:1,
                 inputs:1,
                 outputs:2,
                 nodes: [
-                   {
-                      offset: 0,
-                      inputs: [1],
-                      outputs: [1,1],
-                      label: "f"
-                   }
+                    {
+                        offset: 0,
+                        inputs: [1],
+                        outputs: [1,1],
+                        label: "f"
+                    }
                 ]
-              },
-              {
-                 offset:2,
-                 inputs:2,
-                 outputs:2,
-                 nodes: [
-                   {
-                      offset: 0,
-                      inputs: [2, 2],
-                      outputs: [1, 1],
-                      label: "g"
-                   }
+                },
+                {
+                    offset:2,
+                    inputs:2,
+                    outputs:2,
+                    nodes: [
+                    {
+                        offset: 0,
+                        inputs: [2, 2],
+                        outputs: [1, 1],
+                        label: "g"
+                    }
                 ]
-              }];
-      let diag = new SheetDiagram([ 1, ["A","B"], 2], slices, [ ["A"], ["X", "Y"], 2, 2]);
-      let layout = new SheetLayout(diag);
-      layout.getModel();
+                }];
+        let diag = new SheetDiagram([ 1, ["A","B"], 2], slices, [ ["A"], ["X", "Y"], 2, 2]);
+        let layout = new SheetLayout(diag);
+
+        expect(layout._labelPosition(0, 0)).toEqual({x: 68.4, y: 28, z: 15});
+        expect(layout._labelPosition(1, 0)).toEqual({x: 97.4, y: 68, z: 22.4});
+        layout.getModel();
 });
 
 test('discretizePath', function() {
