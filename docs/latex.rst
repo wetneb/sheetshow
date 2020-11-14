@@ -121,6 +121,14 @@ This produces the following output:
 .. image:: latex_output.svg
     :align: center
 
+The generated :math:`\LaTeX` file require the `graphicx` and `color` packages. To render a minimal document with :math:`\LaTeX`, you can use the following template::
+
+   \documentclass{standalone}
+   \usepackage{graphicx}
+   \usepackage{color}
+   \begin{document}
+   \input{sheet_diagram.pdf_tex}
+   \end{document}
 
 Automation
 ----------
