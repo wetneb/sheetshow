@@ -148,7 +148,7 @@ export default class GlpkBimonoidalLayout {
                                     name: `node${i}_${j}_left`,
                                     vars: [
                                             { name: varName, coef: 1.0 },
-                                            { name: `w${i}_${j-1}`, coef: -1.0 }
+                                            { name: `node${i}_${j-1}`, coef: -1.0 }
                                     ],
                                     bnds: { type: Glpk.GLP_LO, ub: 0.0, lb: this.edgeDist }
                             });
