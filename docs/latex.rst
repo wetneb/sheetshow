@@ -23,11 +23,11 @@ Inkscape
 It can be used as a command line tool to convert between different vector and raster image formats.
 In our case, we use it to convert from SVG to :math:`\LaTeX` as follows (for Inkscape 0.92)::
 
+   inkscape -D sheet_diagram.svg --export-filename=sheet_diagram.pdf --export-latex --export-area-drawing
+
+Before Inkscape 1.0, the syntax was::
+
    inkscape -D -z --file=sheet_diagram.svg --export-pdf=sheet_diagram.pdf --export-latex --export-area-drawing
-
-For Inkscape 1.0, the syntax will be changed to::
-
-   inkscape -D sheet_diagram.svg --export-file=sheet_diagram.pdf --export-latex --export-area-drawing
 
 When invoked like this, Inkscape will generate two files:
 
