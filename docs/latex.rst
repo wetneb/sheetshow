@@ -21,7 +21,7 @@ Inkscape
 
 `Inkscape <https://inkscape.org/>`_ is an open source vector graphics editor, available on most platforms.
 It can be used as a command line tool to convert between different vector and raster image formats.
-In our case, we use it to convert from SVG to :math:`\LaTeX` as follows (for Inkscape 0.92)::
+In our case, we use it to convert from SVG to :math:`\LaTeX` as follows (for Inkscape 1.0 and above)::
 
    inkscape -D sheet_diagram.svg --export-filename=sheet_diagram.pdf --export-latex --export-area-drawing
 
